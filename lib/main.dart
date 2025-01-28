@@ -49,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return pw.Center(child: pw.Image(image));
     }));
 
-    final output = await getTemporaryDirectory();
+    final output = await getApplicationDocumentsDirectory();
     final file = File("${output.path}/example.pdf");
     await file.writeAsBytes(await pdf.save());
 
