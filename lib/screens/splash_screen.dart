@@ -13,7 +13,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 6), () {
+    Future.delayed(const Duration(seconds: 4), () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -29,28 +29,45 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Spacer(),
             Image.asset(
               'assets/ScanAppIcon.png',
-              width: 150,
-              height: 150,
+              width: 170,
+              height: 170,
             ),
-            const Spacer(),
+            const SizedBox(height: 20),
             Padding(
-              padding: const EdgeInsets.only(bottom: 40),
-              child: AnimatedTextKit(
-                animatedTexts: [
-                  TyperAnimatedText(
-                    'Free Image To PDF Mobile Apps Without Any Ads',
-                    textStyle: const TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    speed: const Duration(milliseconds: 50),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                children: [
+                  AnimatedTextKit(
+                    animatedTexts: [
+                      TyperAnimatedText(
+                        'Free Image To PDF Mobile Apps Without Any Ads',
+                        textStyle: const TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        speed: const Duration(milliseconds: 50),
+                      ),
+                    ],
+                    totalRepeatCount: 1,
+                  ),
+                  AnimatedTextKit(
+                    animatedTexts: [
+                      TyperAnimatedText(
+                        'Powered By RS Tech Solutions',
+                        textStyle: const TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                        ),
+                        speed: const Duration(milliseconds: 50),
+                      ),
+                    ],
+                    totalRepeatCount: 1,
                   ),
                 ],
-                totalRepeatCount: 1,
               ),
             ),
           ],
