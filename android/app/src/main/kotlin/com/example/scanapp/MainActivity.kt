@@ -1,4 +1,4 @@
-package com.example.scanapp
+package com.scan.scanapp
 
 import io.flutter.embedding.android.FlutterActivity
 

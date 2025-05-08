@@ -7,6 +7,7 @@ import 'package:printing/printing.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:scanapp/screens/home_screen.dart';
+import 'package:scanapp/screens/splash_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -21,7 +22,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomeScreen(),
+      // home: HomeScreen(),
+      debugShowCheckedModeBanner: false,
+      home: const SplashScreen(),
     );
   }
 }
