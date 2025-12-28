@@ -4,6 +4,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:scanapp/widgets/permission_dialogs.dart';
 import 'package:scanapp/services/permission_service.dart';
+import 'package:scanapp/l10n/app_localizations.dart';
 
 class OnboardingScreen extends StatefulWidget {
   final VoidCallback onComplete;
@@ -22,29 +23,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentPage = 0;
   bool _isRequestingPermissions = false;
 
-  final List<OnboardingPage> pages = [
-    OnboardingPage(
-      title: 'Scan Documents',
-      description:
-          'Capture crisp, clear scans of documents, receipts, and more using your camera.',
-      icon: Icons.document_scanner_outlined,
-      color: const Color(0xFF1F77F5),
-    ),
-    OnboardingPage(
-      title: 'Edit & Enhance',
-      description:
-          'Adjust brightness, contrast, and more. Auto-enhance for perfect results every time.',
-      icon: Icons.tune_outlined,
-      color: const Color(0xFF7C3AED),
-    ),
-    OnboardingPage(
-      title: 'Save & Share',
-      description:
-          'Export as PDF, PNG, or JPEG. Share instantly with anyone via email, messaging, or cloud storage.',
-      icon: Icons.share_outlined,
-      color: const Color(0xFF06B6D4),
-    ),
-  ];
+  List<OnboardingPage> _getPages(AppLocalizations l10n) => [
+        OnboardingPage(
+          title: l10n.scanDocumentsTitle,
+          description: l10n.scanDocumentsDesc,
+          icon: Icons.document_scanner_outlined,
+          color: const Color(0xFF1F77F5),
+        ),
+        OnboardingPage(
+          title: l10n.editEnhanceTitle,
+          description: l10n.editEnhanceDesc,
+          icon: Icons.tune_outlined,
+          color: const Color(0xFF7C3AED),
+        ),
+        OnboardingPage(
+          title: l10n.saveShareTitle,
+          description: l10n.saveShareDesc,
+          icon: Icons.share_outlined,
+          color: const Color(0xFF06B6D4),
+        ),
+      ];
 
   @override
   void dispose() {
@@ -107,7 +105,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _nextPage() {
-    if (_currentPage < pages.length - 1) {
+    // We have 3 pages (0, 1, 2), so check if we're on the last page
+    if (_currentPage < 2) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
@@ -123,6 +122,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final pages = _getPages(l10n);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
@@ -175,7 +177,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 curve: Curves.easeInOut,
                               );
                             },
-                            child: const Text('Back'),
+                            child: Text(l10n.back),
                           ),
                         ),
                       if (_currentPage > 0) const SizedBox(width: 12),
@@ -183,9 +185,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Expanded(
                           child: TextButton(
                             onPressed: _skipOnboarding,
-                            child: const Text(
-                              'Skip',
-                              style: TextStyle(color: Colors.grey),
+                            child: Text(
+                              l10n.skip,
+                              style: const TextStyle(color: Colors.grey),
                             ),
                           ),
                         ),
@@ -208,8 +210,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 )
                               : Text(
                                   _currentPage == pages.length - 1
-                                      ? 'Get Started'
-                                      : 'Next',
+                                      ? l10n.getStarted
+                                      : l10n.next,
                                 ),
                         ),
                       ),

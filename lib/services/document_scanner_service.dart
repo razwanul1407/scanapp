@@ -72,7 +72,7 @@ class DocumentScannerService {
       }
       return null;
     } catch (e) {
-      print('Error importing from gallery: $e');
+      debugPrint('Error importing from gallery: $e');
       return null;
     }
   }

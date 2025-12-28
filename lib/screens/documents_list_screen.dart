@@ -4,6 +4,7 @@ import 'package:scanapp/providers/documents_provider.dart';
 import 'package:scanapp/screens/document_detail_screen.dart';
 import 'package:scanapp/screens/single_image_detail_screen.dart';
 import 'package:scanapp/services/pdf_service.dart';
+import 'package:scanapp/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 
@@ -24,7 +25,9 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
     super.initState();
     _searchController = TextEditingController();
     Future.microtask(() {
-      context.read<DocumentsProvider>().loadDocuments();
+      if (mounted) {
+        context.read<DocumentsProvider>().loadDocuments();
+      }
     });
   }
 
@@ -36,9 +39,11 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Documents'),
+        title: Text(l10n.myDocuments),
         centerTitle: true,
         actions: [
           IconButton(
@@ -67,7 +72,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                       controller: _searchController,
                       onChanged: (value) => provider.searchDocuments(value),
                       decoration: InputDecoration(
-                        hintText: 'Search documents...',
+                        hintText: l10n.searchDocuments,
                         prefixIcon: const Icon(Icons.search),
                         suffixIcon: _searchController.text.isNotEmpty
                             ? IconButton(
@@ -101,7 +106,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                                   size: 20,
                                 ),
                                 const SizedBox(width: 8),
-                                const Text('Sort by Date'),
+                                Text(l10n.sortByDate),
                               ],
                             ),
                           ),
@@ -115,7 +120,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                                   size: 20,
                                 ),
                                 const SizedBox(width: 8),
-                                const Text('Sort by Name'),
+                                Text(l10n.sortByName),
                               ],
                             ),
                           ),
@@ -129,7 +134,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                                   size: 20,
                                 ),
                                 const SizedBox(width: 8),
-                                const Text('Sort by Size'),
+                                Text(l10n.sortBySize),
                               ],
                             ),
                           ),
@@ -164,7 +169,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'No documents found',
+                                  l10n.noDocumentsFound,
                                   style: TextStyle(
                                     fontSize: 18,
                                     color: Colors.grey[600],
@@ -174,8 +179,8 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                                 ElevatedButton.icon(
                                   onPressed: () => Navigator.pop(context),
                                   icon: const Icon(Icons.add),
-                                  label: const Text(
-                                    'Scan Your First Document',
+                                  label: Text(
+                                    l10n.scanYourFirstDocument,
                                   ),
                                 ),
                               ],
@@ -341,7 +346,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                             _shareDocument(doc.id, provider);
                           },
                           icon: const Icon(Icons.share, size: 14),
-                          label: const Text('Share'),
+                          label: Text(AppLocalizations.of(context).share),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
@@ -437,18 +442,20 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      doc.isFavorite ? 'Remove Favorite' : 'Add to Favorite',
+                      doc.isFavorite
+                          ? AppLocalizations.of(context).removeFromFavorite
+                          : AppLocalizations.of(context).addToFavorite,
                     ),
                   ],
                 ),
                 onTap: () => provider.toggleFavorite(doc.id),
               ),
               PopupMenuItem(
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.share, size: 18),
-                    SizedBox(width: 12),
-                    Text('Share'),
+                    const Icon(Icons.share, size: 18),
+                    const SizedBox(width: 12),
+                    Text(AppLocalizations.of(context).share),
                   ],
                 ),
                 onTap: () {
@@ -457,11 +464,11 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                 },
               ),
               PopupMenuItem(
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.delete, color: Colors.red, size: 18),
-                    SizedBox(width: 12),
-                    Text('Delete'),
+                    const Icon(Icons.delete, color: Colors.red, size: 18),
+                    const SizedBox(width: 12),
+                    Text(AppLocalizations.of(context).delete),
                   ],
                 ),
                 onTap: () => _showDeleteDialog(context, doc.id, provider),
@@ -480,7 +487,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
       // Show loading indicator
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Preparing document...')),
+        SnackBar(content: Text(AppLocalizations.of(context).preparingDocument)),
       );
 
       // Convert image paths to File objects
@@ -500,7 +507,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Document shared successfully')),
+        SnackBar(content: Text(AppLocalizations.of(context).documentShared)),
       );
     } catch (e) {
       if (!mounted) return;
@@ -521,30 +528,30 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Document'),
-        content: const Text(
-          'Are you sure you want to delete this document? This action cannot be undone.',
+        title: Text(AppLocalizations.of(context).deleteDocument),
+        content: Text(
+          AppLocalizations.of(context).deleteConfirmation,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context).cancel),
           ),
           TextButton(
             onPressed: () {
               provider.deleteDocument(docId);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Document deleted'),
-                  duration: Duration(seconds: 2),
+                SnackBar(
+                  content: Text(AppLocalizations.of(context).documentDeleted),
+                  duration: const Duration(seconds: 2),
                 ),
               );
             },
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context).delete),
           ),
         ],
       ),

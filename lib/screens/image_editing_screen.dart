@@ -5,6 +5,7 @@ import 'package:scanapp/providers/image_editing_provider.dart';
 import 'package:scanapp/providers/document_builder_provider.dart';
 import 'package:scanapp/services/image_processor.dart';
 import 'package:scanapp/routes/app_router.dart';
+import 'package:scanapp/l10n/app_localizations.dart';
 
 class ImageEditingScreen extends StatefulWidget {
   final VoidCallback onEditComplete;
@@ -23,9 +24,11 @@ class _ImageEditingScreenState extends State<ImageEditingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Scan'),
+        title: Text(l10n.editScan),
         centerTitle: true,
         actions: [
           TextButton.icon(
@@ -34,7 +37,7 @@ class _ImageEditingScreenState extends State<ImageEditingScreen> {
               context.read<ImageEditingProvider>().resetAdjustments();
             },
             icon: const Icon(Icons.refresh),
-            label: const Text('Reset'),
+            label: Text(l10n.reset),
           ),
         ],
       ),
@@ -104,7 +107,7 @@ class _ImageEditingScreenState extends State<ImageEditingScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              filter.label,
+                              _getFilterLabel(filter, l10n),
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: isSelected
@@ -135,7 +138,7 @@ class _ImageEditingScreenState extends State<ImageEditingScreen> {
                             ? null
                             : () => provider.rotate(90),
                         icon: const Icon(Icons.rotate_left),
-                        label: const Text('Rotate Left'),
+                        label: Text(l10n.rotateLeft),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -145,7 +148,7 @@ class _ImageEditingScreenState extends State<ImageEditingScreen> {
                             ? null
                             : () => provider.rotate(-90),
                         icon: const Icon(Icons.rotate_right),
-                        label: const Text('Rotate Right'),
+                        label: Text(l10n.rotateRight),
                       ),
                     ),
                   ],
@@ -169,7 +172,7 @@ class _ImageEditingScreenState extends State<ImageEditingScreen> {
                               .resetAdjustments();
                           context.go(AppRouter.home);
                         },
-                        child: const Text('Cancel'),
+                        child: Text(l10n.cancel),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -188,7 +191,7 @@ class _ImageEditingScreenState extends State<ImageEditingScreen> {
                                 child:
                                     CircularProgressIndicator(strokeWidth: 2),
                               )
-                            : const Text('Done'),
+                            : Text(l10n.done),
                       ),
                     ),
                   ],
@@ -221,6 +224,23 @@ class _ImageEditingScreenState extends State<ImageEditingScreen> {
         return Icons.gradient;
       case DocumentFilter.highContrast:
         return Icons.contrast;
+    }
+  }
+
+  String _getFilterLabel(DocumentFilter filter, AppLocalizations l10n) {
+    switch (filter) {
+      case DocumentFilter.original:
+        return l10n.original;
+      case DocumentFilter.autoEnhance:
+        return l10n.autoEnhance;
+      case DocumentFilter.magicColor:
+        return l10n.magicColor;
+      case DocumentFilter.blackWhite:
+        return l10n.blackWhite;
+      case DocumentFilter.grayscale:
+        return l10n.grayscale;
+      case DocumentFilter.highContrast:
+        return l10n.highContrast;
     }
   }
 }

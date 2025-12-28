@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:scanapp/services/document_scanner_service.dart';
 import 'package:scanapp/providers/image_editing_provider.dart';
 import 'package:scanapp/providers/document_builder_provider.dart';
+import 'package:scanapp/l10n/app_localizations.dart';
 
 /// Document scanner screen using native edge detection
 class DocumentScannerScreen extends StatefulWidget {
@@ -85,8 +86,9 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
       debugPrint('Scanning error: $e');
       if (mounted && !_hasNavigated) {
         _hasNavigated = true;
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Scanning failed: ${e.toString()}')),
+          SnackBar(content: Text('${l10n.scanningFailed}: ${e.toString()}')),
         );
         Navigator.pop(context);
       }
@@ -99,6 +101,8 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     // This screen is mainly a launcher for the native scanner
     // Show loading while scanner is being prepared
     return Scaffold(
@@ -112,7 +116,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              _isScanning ? 'Opening scanner...' : 'Preparing...',
+              _isScanning ? l10n.openingScanner : l10n.preparing,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,

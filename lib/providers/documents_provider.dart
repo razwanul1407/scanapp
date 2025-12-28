@@ -23,7 +23,7 @@ class DocumentsProvider extends ChangeNotifier {
       _documents = await DatabaseService.getAllDocuments();
       await _applyFilter();
     } catch (e) {
-      print('Error loading documents: $e');
+      debugPrint('Error loading documents: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -56,7 +56,7 @@ class DocumentsProvider extends ChangeNotifier {
       await loadDocuments();
       return id;
     } catch (e) {
-      print('Error saving document: $e');
+      debugPrint('Error saving document: $e');
       rethrow;
     }
   }
@@ -85,7 +85,7 @@ class DocumentsProvider extends ChangeNotifier {
         await loadDocuments();
       }
     } catch (e) {
-      print('Error updating document: $e');
+      debugPrint('Error updating document: $e');
       rethrow;
     }
   }
@@ -96,7 +96,7 @@ class DocumentsProvider extends ChangeNotifier {
       await DatabaseService.deleteDocument(id);
       await loadDocuments();
     } catch (e) {
-      print('Error deleting document: $e');
+      debugPrint('Error deleting document: $e');
       rethrow;
     }
   }
@@ -107,7 +107,7 @@ class DocumentsProvider extends ChangeNotifier {
       await DatabaseService.toggleFavorite(id);
       await loadDocuments();
     } catch (e) {
-      print('Error toggling favorite: $e');
+      debugPrint('Error toggling favorite: $e');
       rethrow;
     }
   }

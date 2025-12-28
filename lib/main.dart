@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:scanapp/services/database_service.dart';
 import 'package:scanapp/theme/app_theme.dart';
 import 'package:scanapp/providers/documents_provider.dart';
 import 'package:scanapp/providers/image_editing_provider.dart';
 import 'package:scanapp/providers/document_builder_provider.dart';
+import 'package:scanapp/providers/language_provider.dart';
+import 'package:scanapp/l10n/app_localizations.dart';
 import 'package:scanapp/routes/app_router.dart';
 
 void main() async {
@@ -32,14 +35,31 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => DocumentBuilderProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => LanguageProvider(),
+        ),
       ],
-      child: MaterialApp.router(
-        title: 'ScanApp - Document Scanner',
-        theme: AppTheme.lightTheme(),
-        darkTheme: AppTheme.darkTheme(),
-        themeMode: ThemeMode.system,
-        debugShowCheckedModeBanner: false,
-        routerConfig: AppRouter.router,
+      child: Consumer<LanguageProvider>(
+        builder: (context, languageProvider, _) {
+          return MaterialApp.router(
+            title: 'ScanApp - Document Scanner',
+            theme: AppTheme.lightTheme(),
+            darkTheme: AppTheme.darkTheme(),
+            themeMode: ThemeMode.system,
+            debugShowCheckedModeBanner: false,
+            routerConfig: AppRouter.router,
+            locale: languageProvider.currentLocale,
+            supportedLocales: LanguageProvider.supportedLanguages
+                .map((lang) => lang.locale)
+                .toList(),
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+          );
+        },
       ),
     );
   }

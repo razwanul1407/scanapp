@@ -136,10 +136,10 @@ class DocumentBuilderProvider extends ChangeNotifier {
         ),
       );
 
-      print('Document saved to database with id: $id');
+      debugPrint('Document saved to database with id: $id');
       return id;
     } catch (e) {
-      print('Error saving document: $e');
+      debugPrint('Error saving document: $e');
       rethrow;
     }
   }

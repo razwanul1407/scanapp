@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
@@ -29,7 +28,7 @@ class ImageProcessor {
         'brightness': brightness,
       });
     } catch (e) {
-      print('Error adjusting brightness: $e');
+      debugPrint('Error adjusting brightness: $e');
       return imageFile.readAsBytesSync();
     }
   }
@@ -43,7 +42,7 @@ class ImageProcessor {
         'contrast': contrast,
       });
     } catch (e) {
-      print('Error adjusting contrast: $e');
+      debugPrint('Error adjusting contrast: $e');
       return imageFile.readAsBytesSync();
     }
   }
@@ -57,7 +56,7 @@ class ImageProcessor {
         'saturation': saturation,
       });
     } catch (e) {
-      print('Error adjusting saturation: $e');
+      debugPrint('Error adjusting saturation: $e');
       return imageFile.readAsBytesSync();
     }
   }
@@ -67,7 +66,7 @@ class ImageProcessor {
     try {
       return await compute(_toGrayscaleIsolate, imageFile.path);
     } catch (e) {
-      print('Error converting to grayscale: $e');
+      debugPrint('Error converting to grayscale: $e');
       return imageFile.readAsBytesSync();
     }
   }
@@ -89,7 +88,7 @@ class ImageProcessor {
         'grayscale': grayscale,
       });
     } catch (e) {
-      print('Error applying adjustments: $e');
+      debugPrint('Error applying adjustments: $e');
       return imageFile.readAsBytesSync();
     }
   }
@@ -99,7 +98,7 @@ class ImageProcessor {
     try {
       return await compute(_autoEnhanceIsolate, imageFile.path);
     } catch (e) {
-      print('Error auto-enhancing: $e');
+      debugPrint('Error auto-enhancing: $e');
       return imageFile.readAsBytesSync();
     }
   }
@@ -115,7 +114,7 @@ class ImageProcessor {
         'filter': filter.index,
       });
     } catch (e) {
-      print('Error applying filter: $e');
+      debugPrint('Error applying filter: $e');
       return imageBytes;
     }
   }
@@ -138,7 +137,7 @@ class ImageProcessor {
         'degrees': degrees,
       });
     } catch (e) {
-      print('Error rotating image: $e');
+      debugPrint('Error rotating image: $e');
       return imageFile.readAsBytesSync();
     }
   }

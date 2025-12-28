@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:scanapp/providers/document_builder_provider.dart';
 import 'package:scanapp/routes/app_router.dart';
 import 'package:scanapp/services/pdf_service.dart';
+import 'package:scanapp/l10n/app_localizations.dart';
 
 class DocumentBuilderScreen extends StatefulWidget {
   final VoidCallback onDocumentBuilt;
@@ -63,9 +64,11 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Build Document'),
+        title: Text(l10n.buildDocument),
         centerTitle: true,
       ),
       body: Consumer<DocumentBuilderProvider>(
@@ -79,8 +82,8 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
                   controller: _titleController,
                   onChanged: (value) => provider.setDocumentTitle(value),
                   decoration: InputDecoration(
-                    labelText: 'Document Title',
-                    hintText: 'Enter document title',
+                    labelText: l10n.documentTitle,
+                    hintText: l10n.enterDocumentName,
                     prefixIcon: const Icon(Icons.title),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -103,7 +106,7 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'No images added',
+                              l10n.noImages,
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.grey[600],
@@ -113,7 +116,7 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
                             ElevatedButton.icon(
                               onPressed: () => _scanMorePages(context),
                               icon: const Icon(Icons.add_a_photo),
-                              label: const Text('Scan First Page'),
+                              label: Text(l10n.scanDocument),
                             ),
                           ],
                         ),
@@ -130,7 +133,7 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
                                 onPressed: () => _scanMorePages(context),
                                 icon: const Icon(Icons.add_a_photo),
                                 label: Text(
-                                    'Scan More Pages (${provider.pageCount} added)'),
+                                    '${l10n.scanMorePages} (${provider.pageCount} ${l10n.pagesAdded})'),
                                 style: OutlinedButton.styleFrom(
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 12),
@@ -168,9 +171,9 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Export Format',
-                      style: TextStyle(
+                    Text(
+                      l10n.exportFormat,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -204,9 +207,9 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Compression',
-                            style: TextStyle(
+                          Text(
+                            l10n.compression,
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
@@ -260,7 +263,7 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      quality.label,
+                                      _getCompressionLabel(quality, l10n),
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: isSelected
@@ -300,7 +303,7 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
                               .clearAllImages();
                           context.go(AppRouter.home);
                         },
-                        child: const Text('Cancel'),
+                        child: Text(l10n.cancel),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -350,7 +353,7 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
                                 }
                               }
                             : null,
-                        child: const Text('Export & Save'),
+                        child: Text(l10n.exportAndSave),
                       ),
                     ),
                   ],
@@ -369,6 +372,7 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
     required File imagePath,
     required VoidCallback onRemove,
   }) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       key: key,
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -380,13 +384,25 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
             color: Theme.of(context).colorScheme.primary,
           ),
         ),
-        title: Text('Page ${index + 1}'),
+        title: Text('${l10n.page} ${index + 1}'),
         trailing: IconButton(
           icon: const Icon(Icons.close),
           onPressed: onRemove,
         ),
       ),
     );
+  }
+
+  String _getCompressionLabel(
+      CompressionQuality quality, AppLocalizations l10n) {
+    switch (quality) {
+      case CompressionQuality.high:
+        return l10n.high;
+      case CompressionQuality.medium:
+        return l10n.medium;
+      case CompressionQuality.low:
+        return l10n.low;
+    }
   }
 
   Widget _buildFormatOption({

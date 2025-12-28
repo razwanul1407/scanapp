@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:scanapp/providers/documents_provider.dart';
 import 'package:scanapp/routes/app_router.dart';
+import 'package:scanapp/l10n/app_localizations.dart';
+import 'package:scanapp/widgets/settings_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,31 +20,42 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     // Load documents when home screen opens
     Future.microtask(() {
-      context.read<DocumentsProvider>().loadDocuments();
+      if (mounted) {
+        context.read<DocumentsProvider>().loadDocuments();
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ScanApp'),
+        title: Text(l10n.appName),
         elevation: 0,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
         actions: [
           TextButton.icon(
             onPressed: () => _showExitDialog(context),
             icon: const Icon(Icons.exit_to_app),
-            label: const Text('Exit'),
+            label: Text(l10n.exit),
           ),
         ],
       ),
+      drawer: const SettingsDrawer(),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // Recent Actions Section
-          const Text(
-            'Quick Actions',
-            style: TextStyle(
+          Text(
+            l10n.quickActions,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -52,8 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
           // Scan New Document Button
           _buildActionCard(
             icon: Icons.camera_alt_outlined,
-            title: 'Scan Document',
-            subtitle: 'Capture and scan a new document',
+            title: l10n.scanDocument,
+            subtitle: l10n.scanDocumentSubtitle,
             onTap: () => context.push(AppRouter.camera),
             color: Theme.of(context).colorScheme.primary,
           ),
@@ -62,17 +75,17 @@ class _HomeScreenState extends State<HomeScreen> {
           // View Documents Button
           _buildActionCard(
             icon: Icons.collections_outlined,
-            title: 'My Documents',
-            subtitle: 'View and manage your scanned documents',
+            title: l10n.myDocuments,
+            subtitle: l10n.myDocumentsSubtitle,
             onTap: () => context.push(AppRouter.documentsList),
             color: Theme.of(context).colorScheme.secondary,
           ),
           const SizedBox(height: 32),
 
           // Statistics Section
-          const Text(
-            'Statistics',
-            style: TextStyle(
+          Text(
+            l10n.statistics,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -89,14 +102,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
                   _buildStatCard(
-                    title: 'Total Documents',
+                    title: l10n.totalDocuments,
                     value: provider.documentCount.toString(),
                     icon: Icons.description_outlined,
                     gradientStart: const Color(0xFF1F77F5),
                     gradientEnd: const Color(0xFF6BA3FF),
                   ),
                   _buildStatCard(
-                    title: 'Favorites',
+                    title: l10n.favorites,
                     value: _getFavoriteCount(provider).toString(),
                     icon: Icons.favorite_outlined,
                     gradientStart: const Color(0xFFE91E63),
@@ -150,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'About ScanApp',
+                      l10n.aboutScanApp,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -161,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'A powerful document scanner app that lets you capture, edit, and export documents to PDF and image formats. All your documents are stored locally on your device.',
+                  l10n.aboutDescription,
                   style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,

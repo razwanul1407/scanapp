@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
@@ -57,7 +57,7 @@ class PdfService {
 
       return await pdf.save();
     } catch (e) {
-      print('Error creating PDF: $e');
+      debugPrint('Error creating PDF: $e');
       rethrow;
     }
   }
@@ -97,7 +97,7 @@ class PdfService {
 
       return await pdf.save();
     } catch (e) {
-      print('Error creating multi-page PDF: $e');
+      debugPrint('Error creating multi-page PDF: $e');
       rethrow;
     }
   }
@@ -128,7 +128,7 @@ class PdfService {
         img.encodeJpg(image, quality: compression.quality),
       );
     } catch (e) {
-      print('Error compressing image: $e');
+      debugPrint('Error compressing image: $e');
       return imageBytes; // Return original if compression fails
     }
   }
@@ -189,7 +189,7 @@ class PdfService {
       await file.writeAsBytes(pdfBytes);
       return file;
     } catch (e) {
-      print('Error saving PDF: $e');
+      debugPrint('Error saving PDF: $e');
       rethrow;
     }
   }
@@ -208,7 +208,7 @@ class PdfService {
         filename: finalFilename,
       );
     } catch (e) {
-      print('Error sharing PDF: $e');
+      debugPrint('Error sharing PDF: $e');
       rethrow;
     }
   }
@@ -216,12 +216,14 @@ class PdfService {
   /// Share PDF file via system share sheet
   static Future<void> sharePdf(File pdfFile) async {
     try {
-      await Share.shareXFiles(
-        [XFile(pdfFile.path)],
-        text: 'Scanned Document',
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(pdfFile.path)],
+          text: 'Scanned Document',
+        ),
       );
     } catch (e) {
-      print('Error sharing PDF file: $e');
+      debugPrint('Error sharing PDF file: $e');
       rethrow;
     }
   }
@@ -236,7 +238,7 @@ class PdfService {
 
       return Uint8List.fromList(img.encodePng(image));
     } catch (e) {
-      print('Error exporting PNG: $e');
+      debugPrint('Error exporting PNG: $e');
       rethrow;
     }
   }
@@ -254,7 +256,7 @@ class PdfService {
 
       return Uint8List.fromList(img.encodeJpg(image, quality: quality));
     } catch (e) {
-      print('Error exporting JPEG: $e');
+      debugPrint('Error exporting JPEG: $e');
       rethrow;
     }
   }
@@ -291,7 +293,7 @@ class PdfService {
       await file.writeAsBytes(fileBytes);
       return file;
     } catch (e) {
-      print('Error saving export file: $e');
+      debugPrint('Error saving export file: $e');
       rethrow;
     }
   }

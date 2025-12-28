@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:scanapp/models/scanned_document.dart';
@@ -41,7 +43,7 @@ class DatabaseService {
 
   static Future<void> initialize() async {
     await _getDatabase();
-    print('Database initialized');
+    debugPrint('Database initialized');
   }
 
   // Save Document
@@ -120,7 +122,6 @@ class DatabaseService {
 
   // Toggle Favorite Status
   static Future<void> toggleFavorite(int id) async {
-    final db = await _getDatabase();
     final doc = await getDocument(id);
     if (doc != null) {
       doc.isFavorite = !doc.isFavorite;

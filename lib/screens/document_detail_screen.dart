@@ -218,7 +218,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
         );
       }
     } catch (e) {
-      print('Error loading image: $e');
+      debugPrint('Error loading image: $e');
     }
 
     return Center(

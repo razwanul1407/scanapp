@@ -69,7 +69,7 @@ class ImageEditingProvider extends ChangeNotifier {
         filter,
       );
     } catch (e) {
-      print('Error applying filter: $e');
+      debugPrint('Error applying filter: $e');
     } finally {
       _isProcessing = false;
       notifyListeners();
@@ -119,7 +119,7 @@ class ImageEditingProvider extends ChangeNotifier {
       _baseImageBytes = rotated; // Update base for filters
       _rotation = (_rotation + degrees) % 360;
     } catch (e) {
-      print('Error rotating: $e');
+      debugPrint('Error rotating: $e');
     } finally {
       _isProcessing = false;
       notifyListeners();
@@ -139,7 +139,7 @@ class ImageEditingProvider extends ChangeNotifier {
       _contrast = 0.0;
       _saturation = 0.0;
     } catch (e) {
-      print('Error auto-enhancing: $e');
+      debugPrint('Error auto-enhancing: $e');
     } finally {
       _isProcessing = false;
       notifyListeners();
@@ -198,7 +198,7 @@ class ImageEditingProvider extends ChangeNotifier {
       // Note: Rotation would be applied here if needed
       // For now, we'll handle it separately in the UI
     } catch (e) {
-      print('Error applying adjustments: $e');
+      debugPrint('Error applying adjustments: $e');
     } finally {
       _isProcessing = false;
       notifyListeners();

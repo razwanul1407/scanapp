@@ -217,7 +217,7 @@ class SingleImageDetailScreen extends StatelessWidget {
         );
       }
     } catch (e) {
-      print('Error loading image: $e');
+      debugPrint('Error loading image: $e');
     }
 
     return Column(

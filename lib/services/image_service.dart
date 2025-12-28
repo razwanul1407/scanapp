@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
@@ -10,7 +11,7 @@ class ImageService {
       // This is placeholder for image selection logic
       return null;
     } catch (e) {
-      print('Error picking from gallery: $e');
+      debugPrint('Error picking from gallery: $e');
       return null;
     }
   }
@@ -24,7 +25,7 @@ class ImageService {
       // final croppedImagePath = await EdgeDetection.detectEdges(imagePath: imagePath);
       return null;
     } catch (e) {
-      print('Error detecting edges: $e');
+      debugPrint('Error detecting edges: $e');
       return null;
     }
   }
@@ -46,7 +47,7 @@ class ImageService {
       final savedFile = await imageFile.copy(filepath);
       return savedFile;
     } catch (e) {
-      print('Error saving image: $e');
+      debugPrint('Error saving image: $e');
       rethrow;
     }
   }
@@ -70,7 +71,7 @@ class ImageService {
       final thumbFile = await imageFile.copy(thumbPath);
       return thumbFile;
     } catch (e) {
-      print('Error creating thumbnail: $e');
+      debugPrint('Error creating thumbnail: $e');
       return null;
     }
   }
@@ -84,7 +85,7 @@ class ImageService {
       }
       return false;
     } catch (e) {
-      print('Error deleting image: $e');
+      debugPrint('Error deleting image: $e');
       return false;
     }
   }
@@ -95,7 +96,7 @@ class ImageService {
       final stat = await imageFile.stat();
       return stat.size;
     } catch (e) {
-      print('Error getting file size: $e');
+      debugPrint('Error getting file size: $e');
       return 0;
     }
   }
@@ -105,7 +106,7 @@ class ImageService {
     try {
       return await imageFile.exists();
     } catch (e) {
-      print('Error verifying image: $e');
+      debugPrint('Error verifying image: $e');
       return false;
     }
   }
