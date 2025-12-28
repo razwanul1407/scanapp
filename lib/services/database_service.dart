@@ -39,6 +39,14 @@ class DatabaseService {
         lastExportFormat TEXT
       )
     ''');
+
+    // Add indexes for frequently queried columns
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_title ON scanned_documents(title)');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_isFavorite ON scanned_documents(isFavorite)');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_createdAt ON scanned_documents(createdAt DESC)');
   }
 
   static Future<void> initialize() async {
@@ -92,30 +100,32 @@ class DatabaseService {
     );
   }
 
-  // Search Documents
+  // Search Documents (optimized - uses SQL WHERE instead of loading all)
   static Future<List<ScannedDocument>> searchDocuments(String query) async {
     final db = await _getDatabase();
-    final lowerQuery = query.toLowerCase();
+    final lowerQuery = '%${query.toLowerCase()}%';
 
-    final maps = await db.query('scanned_documents');
-    final results = maps
-        .map((map) => ScannedDocument.fromMap(map))
-        .where((doc) =>
-            doc.title.toLowerCase().contains(lowerQuery) ||
-            doc.tags.any((tag) => tag.toLowerCase().contains(lowerQuery)) ||
-            (doc.notes?.toLowerCase() ?? '').contains(lowerQuery))
-        .toList();
+    // Use SQL LIKE search for title (uses index)
+    final maps = await db.rawQuery(
+      '''
+      SELECT * FROM scanned_documents 
+      WHERE LOWER(title) LIKE ? OR LOWER(notes) LIKE ?
+      ORDER BY createdAt DESC
+      ''',
+      [lowerQuery, lowerQuery],
+    );
 
-    return results;
+    return maps.map((map) => ScannedDocument.fromMap(map)).toList();
   }
 
-  // Get Favorite Documents
+  // Get Favorite Documents (optimized with index)
   static Future<List<ScannedDocument>> getFavoriteDocuments() async {
     final db = await _getDatabase();
     final maps = await db.query(
       'scanned_documents',
       where: 'isFavorite = ?',
       whereArgs: [1],
+      orderBy: 'createdAt DESC',
     );
     return maps.map((map) => ScannedDocument.fromMap(map)).toList();
   }
@@ -143,6 +153,30 @@ class DatabaseService {
       tags.addAll(doc.tags);
     }
     return tags.toList();
+  }
+
+  // Optimize Database
+
+  /// Analyze database for query optimization
+  static Future<void> analyzeDatabase() async {
+    final db = await _getDatabase();
+    try {
+      await db.execute('ANALYZE');
+      debugPrint('Database analysis completed');
+    } catch (e) {
+      debugPrint('Error analyzing database: $e');
+    }
+  }
+
+  /// Vacuum database to reclaim space
+  static Future<void> vacuumDatabase() async {
+    final db = await _getDatabase();
+    try {
+      await db.execute('VACUUM');
+      debugPrint('Database vacuum completed');
+    } catch (e) {
+      debugPrint('Error vacuuming database: $e');
+    }
   }
 
   // Close Database

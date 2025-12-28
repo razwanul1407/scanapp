@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
 import 'package:scanapp/services/database_service.dart';
+import 'package:scanapp/services/image_cache_service.dart';
 import 'package:scanapp/theme/app_theme.dart';
 import 'package:scanapp/providers/documents_provider.dart';
 import 'package:scanapp/providers/image_editing_provider.dart';
@@ -16,6 +17,12 @@ void main() async {
 
   // Initialize Database in background to prevent frame skips
   DatabaseService.initialize();
+
+  // Initialize image cache service
+  await ImageCacheService().initialize();
+
+  // Clear old cache files (older than 7 days) in background
+  ImageCacheService().clearOldCache();
 
   runApp(const MyApp());
 }

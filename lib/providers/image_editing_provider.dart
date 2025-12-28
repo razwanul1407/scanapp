@@ -5,8 +5,7 @@ import 'package:scanapp/services/image_processor.dart';
 
 class ImageEditingProvider extends ChangeNotifier {
   File? _originalImage;
-  Uint8List? _currentImageBytes;
-  Uint8List? _baseImageBytes; // Base image before filters
+  Uint8List? _processedImageBytes; // Single source of truth for image data
 
   double _brightness = 0.0;
   double _contrast = 0.0;
@@ -18,8 +17,8 @@ class ImageEditingProvider extends ChangeNotifier {
   bool _isProcessing = false;
 
   File? get originalImage => _originalImage;
-  Uint8List? get currentImageBytes => _currentImageBytes;
-  Uint8List? get processedImageBytes => _currentImageBytes;
+  Uint8List? get currentImageBytes => _processedImageBytes;
+  Uint8List? get processedImageBytes => _processedImageBytes;
 
   double get brightness => _brightness;
   double get contrast => _contrast;
@@ -40,8 +39,7 @@ class ImageEditingProvider extends ChangeNotifier {
   /// Load image for editing
   void loadImage(File imageFile) {
     _originalImage = imageFile;
-    _currentImageBytes = imageFile.readAsBytesSync();
-    _baseImageBytes = _currentImageBytes;
+    _processedImageBytes = imageFile.readAsBytesSync();
     _resetAdjustments();
     notifyListeners();
   }
@@ -49,23 +47,22 @@ class ImageEditingProvider extends ChangeNotifier {
   /// Load image from bytes (for scanned images)
   void loadImageFromBytes(Uint8List bytes, File? sourceFile) {
     _originalImage = sourceFile;
-    _currentImageBytes = bytes;
-    _baseImageBytes = bytes;
+    _processedImageBytes = bytes;
     _resetAdjustments();
     notifyListeners();
   }
 
   /// Apply document filter (CamScanner-like)
   Future<void> applyDocumentFilter(DocumentFilter filter) async {
-    if (_baseImageBytes == null) return;
+    if (_processedImageBytes == null) return;
 
     _isProcessing = true;
     _currentFilter = filter;
     notifyListeners();
 
     try {
-      _currentImageBytes = await ImageProcessor.applyFilter(
-        _baseImageBytes!,
+      _processedImageBytes = await ImageProcessor.applyFilter(
+        _processedImageBytes!,
         filter,
       );
     } catch (e) {
@@ -102,7 +99,7 @@ class ImageEditingProvider extends ChangeNotifier {
 
   /// Rotate image
   Future<void> rotate(int degrees) async {
-    if (_currentImageBytes == null) return;
+    if (_processedImageBytes == null) return;
 
     _isProcessing = true;
     notifyListeners();
@@ -110,13 +107,12 @@ class ImageEditingProvider extends ChangeNotifier {
     try {
       // Save current bytes to temp file for rotation
       final tempFile = await ImageProcessor.saveProcessedImage(
-        imageBytes: _currentImageBytes!,
+        imageBytes: _processedImageBytes!,
         filename: 'temp_rotate_${DateTime.now().millisecondsSinceEpoch}.jpg',
       );
 
       final rotated = await ImageProcessor.rotateImage(tempFile, degrees);
-      _currentImageBytes = rotated;
-      _baseImageBytes = rotated; // Update base for filters
+      _processedImageBytes = rotated;
       _rotation = (_rotation + degrees) % 360;
     } catch (e) {
       debugPrint('Error rotating: $e');
@@ -134,7 +130,7 @@ class ImageEditingProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _currentImageBytes = await ImageProcessor.autoEnhance(_originalImage!);
+      _processedImageBytes = await ImageProcessor.autoEnhance(_originalImage!);
       _brightness = 0.0;
       _contrast = 0.0;
       _saturation = 0.0;
@@ -154,12 +150,12 @@ class ImageEditingProvider extends ChangeNotifier {
 
   /// Get edited image file
   Future<File> getEditedImageFile() async {
-    if (_currentImageBytes == null) {
+    if (_processedImageBytes == null) {
       throw Exception('No image loaded');
     }
 
     return await ImageProcessor.saveProcessedImage(
-      imageBytes: _currentImageBytes!,
+      imageBytes: _processedImageBytes!,
       filename: 'edited_${DateTime.now().millisecondsSinceEpoch}.jpg',
     );
   }
@@ -175,8 +171,7 @@ class ImageEditingProvider extends ChangeNotifier {
     _currentFilter = DocumentFilter.original;
 
     if (_originalImage != null) {
-      _currentImageBytes = _originalImage!.readAsBytesSync();
-      _baseImageBytes = _currentImageBytes;
+      _processedImageBytes = _originalImage!.readAsBytesSync();
     }
   }
 
@@ -187,7 +182,7 @@ class ImageEditingProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _currentImageBytes = await ImageProcessor.applyAdjustments(
+      _processedImageBytes = await ImageProcessor.applyAdjustments(
         imageFile: _originalImage!,
         brightness: _brightness,
         contrast: _contrast,
@@ -203,5 +198,13 @@ class ImageEditingProvider extends ChangeNotifier {
       _isProcessing = false;
       notifyListeners();
     }
+  }
+
+  /// Cleanup resources
+  @override
+  void dispose() {
+    _originalImage = null;
+    _processedImageBytes = null;
+    super.dispose();
   }
 }

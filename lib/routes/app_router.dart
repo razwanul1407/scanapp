@@ -60,7 +60,8 @@ class AppRouter {
             onImagesScanned: (List<File> files) {
               if (files.isNotEmpty) {
                 context.read<ImageEditingProvider>().loadImage(files.first);
-                context.push(imageEditing);
+                // Replace scanner with edit screen to avoid returning to 'preparing'
+                context.replace(imageEditing);
               }
             },
           );

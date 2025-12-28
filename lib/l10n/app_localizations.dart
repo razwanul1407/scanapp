@@ -72,6 +72,7 @@ class AppLocalizations {
       'pagesAdded': 'added',
       'exportAndSave': 'Export & Save',
       'noImages': 'No images scanned yet',
+      'imageNotFound': 'Image not found',
       'startScanning': 'Start by scanning a document',
 
       // Documents List
@@ -180,6 +181,7 @@ class AppLocalizations {
       'pagesAdded': 'যোগ করা হয়েছে',
       'exportAndSave': 'রপ্তানি এবং সংরক্ষণ',
       'noImages': 'এখনও কোনো ছবি স্ক্যান হয়নি',
+      'imageNotFound': 'ছবি পাওয়া যায়নি',
       'startScanning': 'ডকুমেন্ট স্ক্যান করে শুরু করুন',
 
       // Documents List
@@ -288,6 +290,7 @@ class AppLocalizations {
       'pagesAdded': 'जोड़ा गया',
       'exportAndSave': 'निर्यात और सहेजें',
       'noImages': 'अभी तक कोई छवि स्कैन नहीं हुई',
+      'imageNotFound': 'छवि नहीं मिली',
       'startScanning': 'दस्तावेज़ स्कैन करके शुरू करें',
 
       // Documents List
@@ -395,6 +398,7 @@ class AppLocalizations {
       'pagesAdded': 'مضافة',
       'exportAndSave': 'تصدير وحفظ',
       'noImages': 'لم يتم مسح أي صور بعد',
+      'imageNotFound': 'لم يتم العثور على الصورة',
       'startScanning': 'ابدأ بمسح مستند',
 
       // Documents List
@@ -504,6 +508,7 @@ class AppLocalizations {
   String get pagesAdded => translate('pagesAdded');
   String get exportAndSave => translate('exportAndSave');
   String get noImages => translate('noImages');
+  String get imageNotFound => translate('imageNotFound');
   String get startScanning => translate('startScanning');
 
   String get searchDocuments => translate('searchDocuments');

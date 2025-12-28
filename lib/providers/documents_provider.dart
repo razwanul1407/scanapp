@@ -9,25 +9,78 @@ class DocumentsProvider extends ChangeNotifier {
   String _searchQuery = '';
   String _sortBy = 'date'; // 'date', 'name', 'size'
 
-  List<ScannedDocument> get documents => _filteredDocuments;
+  // Pagination
+  static const int _pageSize = 30;
+  int _currentPage = 0;
+  List<ScannedDocument> _paginatedDocuments = [];
+
+  List<ScannedDocument> get documents => _paginatedDocuments;
   bool get isLoading => _isLoading;
   String get searchQuery => _searchQuery;
-  int get documentCount => _documents.length;
+  int get documentCount => _filteredDocuments.length;
+  int get totalCount => _documents.length;
+  int get currentPage => _currentPage;
+  bool get hasNextPage =>
+      (_currentPage + 1) * _pageSize < _filteredDocuments.length;
+  bool get hasPreviousPage => _currentPage > 0;
 
   /// Load all documents from database
   Future<void> loadDocuments() async {
     _isLoading = true;
+    _currentPage = 0;
     notifyListeners();
 
     try {
       _documents = await DatabaseService.getAllDocuments();
       await _applyFilter();
+      _updatePaginatedList();
     } catch (e) {
       debugPrint('Error loading documents: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  /// Load next page of documents
+  void loadNextPage() {
+    if (hasNextPage) {
+      _currentPage++;
+      _updatePaginatedList();
+      notifyListeners();
+    }
+  }
+
+  /// Load previous page of documents
+  void loadPreviousPage() {
+    if (hasPreviousPage) {
+      _currentPage--;
+      _updatePaginatedList();
+      notifyListeners();
+    }
+  }
+
+  /// Reset to first page
+  void resetPagination() {
+    _currentPage = 0;
+    _updatePaginatedList();
+    notifyListeners();
+  }
+
+  void _updatePaginatedList() {
+    final startIndex = _currentPage * _pageSize;
+    final endIndex = startIndex + _pageSize;
+    final maxIndex = _filteredDocuments.length;
+
+    if (startIndex >= maxIndex) {
+      _paginatedDocuments = [];
+      return;
+    }
+
+    _paginatedDocuments = _filteredDocuments.sublist(
+      startIndex,
+      endIndex > maxIndex ? maxIndex : endIndex,
+    );
   }
 
   /// Save a new document
@@ -115,6 +168,7 @@ class DocumentsProvider extends ChangeNotifier {
   /// Search documents
   void searchDocuments(String query) {
     _searchQuery = query;
+    _currentPage = 0; // Reset to first page on new search
     _applyFilter();
     notifyListeners();
   }
@@ -122,7 +176,9 @@ class DocumentsProvider extends ChangeNotifier {
   /// Sort documents
   void sortDocuments(String sortBy) {
     _sortBy = sortBy;
+    _currentPage = 0; // Reset to first page on new sort
     _applySort();
+    _updatePaginatedList();
     notifyListeners();
   }
 
@@ -145,6 +201,7 @@ class DocumentsProvider extends ChangeNotifier {
       _filteredDocuments = await DatabaseService.searchDocuments(_searchQuery);
     }
     _applySort();
+    _updatePaginatedList();
   }
 
   void _applySort() {

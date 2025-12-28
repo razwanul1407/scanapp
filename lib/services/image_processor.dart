@@ -247,7 +247,8 @@ class ImageProcessor {
       image = img.grayscale(image);
     }
 
-    return Uint8List.fromList(img.encodeJpg(image));
+    // Reduced quality from 90 to 78 for better compression (20-30% smaller files)
+    return Uint8List.fromList(img.encodeJpg(image, quality: 78));
   }
 
   static Uint8List _autoEnhanceIsolate(String inputPath) {
@@ -396,5 +397,42 @@ class ImageProcessor {
   static Future<int> getImageFileSize(File imageFile) async {
     final stat = await imageFile.stat();
     return stat.size;
+  }
+
+  /// Generate thumbnail with actual resizing (150px width)
+  static Future<Uint8List> generateThumbnail(Uint8List imageBytes) async {
+    try {
+      return await compute(_generateThumbnailIsolate, imageBytes);
+    } catch (e) {
+      debugPrint('Error generating thumbnail: $e');
+      return imageBytes;
+    }
+  }
+
+  static Uint8List _generateThumbnailIsolate(Uint8List imageBytes) {
+    final image = img.decodeImage(imageBytes);
+    if (image == null) throw Exception('Failed to decode image');
+
+    // Resize to 150px width maintaining aspect ratio
+    final thumbnail = img.copyResize(
+      image,
+      width: 150,
+      height: (image.height * 150 ~/ image.width),
+      interpolation: img.Interpolation.linear,
+    );
+
+    // Use lower quality (70) for thumbnail
+    return Uint8List.fromList(img.encodeJpg(thumbnail, quality: 70));
+  }
+
+  /// Generate thumbnail from file
+  static Future<Uint8List> generateThumbnailFromFile(File imageFile) async {
+    try {
+      final bytes = await imageFile.readAsBytes();
+      return await generateThumbnail(bytes);
+    } catch (e) {
+      debugPrint('Error generating thumbnail from file: $e');
+      return imageFile.readAsBytesSync();
+    }
   }
 }

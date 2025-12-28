@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:scanapp/providers/document_builder_provider.dart';
@@ -24,6 +25,7 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
   String _selectedExportFormat = 'pdf';
   CompressionQuality _selectedCompression = CompressionQuality.medium;
   String _estimatedSize = '';
+  bool _isEstimatingSize = false;
 
   @override
   void initState() {
@@ -41,13 +43,41 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
       return;
     }
 
-    final size = await PdfService.estimatePdfSize(
-      imageFiles: provider.scannedImages,
-      compression: _selectedCompression,
-    );
     if (mounted) {
-      setState(() => _estimatedSize = PdfService.formatFileSize(size));
+      setState(() => _isEstimatingSize = true);
     }
+
+    try {
+      // Run estimation in background isolate to prevent frame drops
+      final size = await compute(
+        _estimateSizeInBackground,
+        _EstimationParams(
+          provider.scannedImages,
+          _selectedCompression,
+        ),
+      );
+
+      if (mounted) {
+        setState(() {
+          _estimatedSize = PdfService.formatFileSize(size);
+          _isEstimatingSize = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isEstimatingSize = false);
+      }
+    }
+  }
+
+  /// Background isolate function for PDF size estimation
+  static Future<int> _estimateSizeInBackground(
+    _EstimationParams params,
+  ) async {
+    return await PdfService.estimatePdfSize(
+      imageFiles: params.imageFiles,
+      compression: params.compression,
+    );
   }
 
   @override
@@ -147,12 +177,14 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
                               onReorder: (oldIndex, newIndex) {
                                 provider.reorderImages(oldIndex, newIndex);
                               },
+                              shrinkWrap: false,
                               children: [
                                 for (int i = 0;
                                     i < provider.scannedImages.length;
                                     i++)
                                   _buildImageTile(
-                                    key: ValueKey(i),
+                                    key: ValueKey(
+                                        provider.scannedImages[i].path),
                                     index: i,
                                     imagePath: provider.scannedImages[i],
                                     onRemove: () => provider.removeImage(i),
@@ -166,7 +198,7 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
 
               // Export Format Selection
               Container(
-                color: Colors.grey[100],
+                // color: Colors.grey[100],
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,12 +246,23 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          if (_estimatedSize.isNotEmpty)
+                          if (_isEstimatingSize)
+                            SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            )
+                          else if (_estimatedSize.isNotEmpty)
                             Text(
                               'Est. size: $_estimatedSize',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey[600],
+                                color: Colors.white,
                               ),
                             ),
                         ],
@@ -236,11 +279,13 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
                                     : 0,
                               ),
                               child: GestureDetector(
-                                onTap: () {
-                                  setState(
-                                      () => _selectedCompression = quality);
-                                  _updateEstimatedSize();
-                                },
+                                onTap: _isEstimatingSize
+                                    ? null
+                                    : () {
+                                        setState(() =>
+                                            _selectedCompression = quality);
+                                        _updateEstimatedSize();
+                                      },
                                 child: Container(
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 8),
@@ -254,12 +299,14 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
                                       width: isSelected ? 2 : 1,
                                     ),
                                     borderRadius: BorderRadius.circular(6),
-                                    color: isSelected
-                                        ? Theme.of(context)
-                                            .colorScheme
-                                            .primary
-                                            .withValues(alpha: 0.1)
-                                        : Colors.transparent,
+                                    color: (_isEstimatingSize)
+                                        ? Colors.transparent
+                                        : isSelected
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withValues(alpha: 0.1)
+                                            : Colors.transparent,
                                   ),
                                   child: Center(
                                     child: Text(
@@ -269,11 +316,13 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
                                         fontWeight: isSelected
                                             ? FontWeight.w600
                                             : FontWeight.normal,
-                                        color: isSelected
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .primary
-                                            : Colors.grey[600],
+                                        color: (_isEstimatingSize)
+                                            ? Colors.grey[600]
+                                            : isSelected
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                : Colors.grey[600],
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
@@ -376,18 +425,106 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
     return Card(
       key: key,
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      child: ListTile(
-        leading: ReorderableDragStartListener(
-          index: index,
-          child: Icon(
-            Icons.drag_handle,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        title: Text('${l10n.page} ${index + 1}'),
-        trailing: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: onRemove,
+      elevation: 2,
+      child: Container(
+        height: 200,
+        padding: const EdgeInsets.all(8),
+        child: Row(
+          children: [
+            // Drag Handle
+            ReorderableDragStartListener(
+              index: index,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Icon(
+                  Icons.drag_handle,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 24,
+                ),
+              ),
+            ),
+            // Image Thumbnail
+            Expanded(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Image Preview
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.grey[200],
+                      border: Border.all(color: Colors.grey[300]!),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.file(
+                        imagePath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.broken_image,
+                                  color: Colors.grey[400],
+                                  size: 24,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  l10n.imageNotFound,
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 9,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  // Page Number Badge
+                  Positioned(
+                    top: 6,
+                    left: 6,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Text(
+                        '${l10n.page} ${index + 1}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Delete Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: IconButton(
+                icon: const Icon(Icons.delete_outline),
+                color: Colors.red[600],
+                iconSize: 20,
+                onPressed: onRemove,
+                tooltip: l10n.delete,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -460,4 +597,12 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
       ),
     );
   }
+}
+
+/// Helper class to pass parameters to isolate
+class _EstimationParams {
+  final List<File> imageFiles;
+  final CompressionQuality compression;
+
+  _EstimationParams(this.imageFiles, this.compression);
 }

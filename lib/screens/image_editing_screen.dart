@@ -25,181 +25,193 @@ class _ImageEditingScreenState extends State<ImageEditingScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.editScan),
-        centerTitle: true,
-        actions: [
-          TextButton.icon(
-            onPressed: () {
-              setState(() => _selectedFilter = DocumentFilter.original);
-              context.read<ImageEditingProvider>().resetAdjustments();
-            },
-            icon: const Icon(Icons.refresh),
-            label: Text(l10n.reset),
-          ),
-        ],
-      ),
-      body: Consumer<ImageEditingProvider>(
-        builder: (context, provider, _) {
-          return Column(
-            children: [
-              // Image Preview - Expanded
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(12),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        // Avoid returning to the scanner 'preparing' screen
+        if (didPop) return;
+        if (mounted) {
+          context.read<DocumentBuilderProvider>().clearAllImages();
+          context.read<ImageEditingProvider>().resetAdjustments();
+          // Navigate to home instead of popping back to scanner
+          context.go(AppRouter.home);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.editScan),
+          centerTitle: true,
+          actions: [
+            TextButton.icon(
+              onPressed: () {
+                setState(() => _selectedFilter = DocumentFilter.original);
+                context.read<ImageEditingProvider>().resetAdjustments();
+              },
+              icon: const Icon(Icons.refresh),
+              label: Text(l10n.reset),
+            ),
+          ],
+        ),
+        body: Consumer<ImageEditingProvider>(
+          builder: (context, provider, _) {
+            return Column(
+              children: [
+                // Image Preview - Expanded
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: provider.currentImageBytes != null
+                          ? Image.memory(
+                              provider.currentImageBytes!,
+                              fit: BoxFit.contain,
+                            )
+                          : const Center(child: CircularProgressIndicator()),
                     ),
-                    clipBehavior: Clip.antiAlias,
-                    child: provider.currentImageBytes != null
-                        ? Image.memory(
-                            provider.currentImageBytes!,
-                            fit: BoxFit.contain,
-                          )
-                        : const Center(child: CircularProgressIndicator()),
                   ),
                 ),
-              ),
 
-              // Document Filters (CamScanner-like)
-              Container(
-                height: 100,
-                color: Colors.grey[100],
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  itemCount: DocumentFilter.values.length,
-                  itemBuilder: (context, index) {
-                    final filter = DocumentFilter.values[index];
-                    final isSelected = _selectedFilter == filter;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: GestureDetector(
-                        onTap: provider.isProcessing
-                            ? null
-                            : () => _applyFilter(provider, filter),
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 60,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                border: Border.all(
+                // Document Filters (CamScanner-like)
+                Container(
+                  height: 100,
+                  color: Colors.grey[100],
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    itemCount: DocumentFilter.values.length,
+                    itemBuilder: (context, index) {
+                      final filter = DocumentFilter.values[index];
+                      final isSelected = _selectedFilter == filter;
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: GestureDetector(
+                          onTap: provider.isProcessing
+                              ? null
+                              : () => _applyFilter(provider, filter),
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Colors.grey[300]!,
+                                    width: isSelected ? 3 : 1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Colors.white,
+                                ),
+                                child: Icon(
+                                  _getFilterIcon(filter),
                                   color: isSelected
                                       ? Theme.of(context).colorScheme.primary
-                                      : Colors.grey[300]!,
-                                  width: isSelected ? 3 : 1,
+                                      : Colors.grey[600],
                                 ),
-                                borderRadius: BorderRadius.circular(8),
-                                color: Colors.white,
                               ),
-                              child: Icon(
-                                _getFilterIcon(filter),
-                                color: isSelected
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Colors.grey[600],
+                              const SizedBox(height: 4),
+                              Text(
+                                _getFilterLabel(filter, l10n),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                  color: isSelected
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Colors.grey[700],
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _getFilterLabel(filter, l10n),
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                                color: isSelected
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Colors.grey[700],
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                // Quick Actions: Rotate
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: provider.isProcessing
+                              ? null
+                              : () => provider.rotate(90),
+                          icon: const Icon(Icons.rotate_left),
+                          label: Text(l10n.rotateLeft),
                         ),
                       ),
-                    );
-                  },
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: provider.isProcessing
+                              ? null
+                              : () => provider.rotate(-90),
+                          icon: const Icon(Icons.rotate_right),
+                          label: Text(l10n.rotateRight),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
 
-              // Quick Actions: Rotate
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: provider.isProcessing
-                            ? null
-                            : () => provider.rotate(90),
-                        icon: const Icon(Icons.rotate_left),
-                        label: Text(l10n.rotateLeft),
+                // Action Buttons
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            // Clear everything and go back to home
+                            context
+                                .read<DocumentBuilderProvider>()
+                                .clearAllImages();
+                            context
+                                .read<ImageEditingProvider>()
+                                .resetAdjustments();
+                            context.go(AppRouter.home);
+                          },
+                          child: Text(l10n.cancel),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: provider.isProcessing
-                            ? null
-                            : () => provider.rotate(-90),
-                        icon: const Icon(Icons.rotate_right),
-                        label: Text(l10n.rotateRight),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: provider.isProcessing
+                              ? null
+                              : () {
+                                  Navigator.pop(context);
+                                  widget.onEditComplete();
+                                },
+                          child: provider.isProcessing
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : Text(l10n.done),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-
-              // Action Buttons
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          // Clear everything and go back to home
-                          context
-                              .read<DocumentBuilderProvider>()
-                              .clearAllImages();
-                          context
-                              .read<ImageEditingProvider>()
-                              .resetAdjustments();
-                          context.go(AppRouter.home);
-                        },
-                        child: Text(l10n.cancel),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: provider.isProcessing
-                            ? null
-                            : () {
-                                Navigator.pop(context);
-                                widget.onEditComplete();
-                              },
-                        child: provider.isProcessing
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : Text(l10n.done),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
