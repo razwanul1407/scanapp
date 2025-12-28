@@ -63,6 +63,9 @@ dependencies:
   # Navigation
   go_router: ^17.0.1
   
+  # App Update Checker (Play Store & App Store)
+  upgrader: ^12.3.0
+  
   # UI Components (minimal)
   smooth_page_indicator: ^2.0.1
   
