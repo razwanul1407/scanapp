@@ -108,6 +108,17 @@ class AppLocalizations {
       'getStarted': 'Get Started',
       'next': 'Next',
       'skip': 'Skip',
+
+      // QR Scanner
+      'scanQRBarcode': 'Scan QR/Barcode',
+      'scanQRBarcodeSubtitle': 'Scan QR codes and barcodes instantly',
+      'qrScannerTitle': 'QR & Barcode Scanner',
+      'scanResult': 'Scan Result',
+      'copyToClipboard': 'Copy',
+      'copiedToClipboard': 'Copied to clipboard',
+      'openLink': 'Open Link',
+      'pointCameraAtCode': 'Point camera at QR code or barcode',
+      'scanAgain': 'Scan Again',
     },
     'bn': {
       // App Name & General
@@ -205,6 +216,17 @@ class AppLocalizations {
       'getStarted': 'শুরু করুন',
       'next': 'পরবর্তী',
       'skip': 'এড়িয়ে যান',
+
+      // QR Scanner
+      'scanQRBarcode': 'QR/বারকোড স্ক্যান',
+      'scanQRBarcodeSubtitle': 'তাৎক্ষণিকভাবে QR কোড এবং বারকোড স্ক্যান করুন',
+      'qrScannerTitle': 'QR ও বারকোড স্ক্যানার',
+      'scanResult': 'স্ক্যান ফলাফল',
+      'copyToClipboard': 'কপি',
+      'copiedToClipboard': 'ক্লিপবোর্ডে কপি হয়েছে',
+      'openLink': 'লিংক খুলুন',
+      'pointCameraAtCode': 'QR কোড বা বারকোডে ক্যামেরা পয়েন্ট করুন',
+      'scanAgain': 'আবার স্ক্যান করুন',
     },
     'hi': {
       // App Name & General
@@ -302,6 +324,17 @@ class AppLocalizations {
       'getStarted': 'शुरू करें',
       'next': 'अगला',
       'skip': 'छोड़ें',
+
+      // QR Scanner
+      'scanQRBarcode': 'QR/बारकोड स्कैन',
+      'scanQRBarcodeSubtitle': 'तुरंत QR कोड और बारकोड स्कैन करें',
+      'qrScannerTitle': 'QR और बारकोड स्कैनर',
+      'scanResult': 'स्कैन परिणाम',
+      'copyToClipboard': 'कॉपी',
+      'copiedToClipboard': 'क्लिपबोर्ड पर कॉपी किया गया',
+      'openLink': 'लिंक खोलें',
+      'pointCameraAtCode': 'QR कोड या बारकोड पर कैमरा पॉइंट करें',
+      'scanAgain': 'फिर से स्कैन करें',
     },
     'ar': {
       // App Name & General
@@ -398,6 +431,17 @@ class AppLocalizations {
       'getStarted': 'ابدأ الآن',
       'next': 'التالي',
       'skip': 'تخطي',
+
+      // QR Scanner
+      'scanQRBarcode': 'مسح QR/الباركود',
+      'scanQRBarcodeSubtitle': 'امسح رموز QR والباركود فوراً',
+      'qrScannerTitle': 'ماسح QR والباركود',
+      'scanResult': 'نتيجة المسح',
+      'copyToClipboard': 'نسخ',
+      'copiedToClipboard': 'تم النسخ إلى الحافظة',
+      'openLink': 'فتح الرابط',
+      'pointCameraAtCode': 'وجّه الكاميرا نحو رمز QR أو الباركود',
+      'scanAgain': 'مسح مرة أخرى',
     },
   };
 
@@ -489,6 +533,17 @@ class AppLocalizations {
   String get getStarted => translate('getStarted');
   String get next => translate('next');
   String get skip => translate('skip');
+
+  // QR Scanner
+  String get scanQRBarcode => translate('scanQRBarcode');
+  String get scanQRBarcodeSubtitle => translate('scanQRBarcodeSubtitle');
+  String get qrScannerTitle => translate('qrScannerTitle');
+  String get scanResult => translate('scanResult');
+  String get copyToClipboard => translate('copyToClipboard');
+  String get copiedToClipboard => translate('copiedToClipboard');
+  String get openLink => translate('openLink');
+  String get pointCameraAtCode => translate('pointCameraAtCode');
+  String get scanAgain => translate('scanAgain');
 }
 
 class _AppLocalizationsDelegate

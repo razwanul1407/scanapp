@@ -9,6 +9,7 @@ import 'package:scanapp/screens/document_scanner_screen.dart';
 import 'package:scanapp/screens/image_editing_screen.dart';
 import 'package:scanapp/screens/document_builder_screen.dart';
 import 'package:scanapp/screens/documents_list_screen.dart';
+import 'package:scanapp/screens/qr_scanner_screen.dart';
 import 'package:scanapp/providers/document_builder_provider.dart';
 import 'package:scanapp/providers/image_editing_provider.dart';
 
@@ -23,6 +24,7 @@ class AppRouter {
   static const imageEditingAddMore = '/edit/add-more';
   static const documentBuilder = '/builder';
   static const documentsList = '/documents';
+  static const qrScanner = '/qr-scanner';
 
   static GoRouter get router => _router;
 
@@ -118,6 +120,11 @@ class AppRouter {
         path: documentsList,
         name: 'documentsList',
         builder: (context, state) => const DocumentsListScreen(),
+      ),
+      GoRoute(
+        path: qrScanner,
+        name: 'qrScanner',
+        builder: (context, state) => const QRScannerScreen(),
       ),
     ],
     // Handle redirect for first launch

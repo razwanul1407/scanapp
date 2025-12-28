@@ -59,12 +59,16 @@ dependencies:
   # File & Path Management
   path_provider: ^2.1.0
   share_plus: ^12.0.1
+  url_launcher: ^6.2.5
   
   # Navigation
   go_router: ^17.0.1
   
   # App Update Checker (Play Store & App Store)
   upgrader: ^12.3.0
+  
+  # QR Code & Barcode Scanner
+  mobile_scanner: ^7.1.4
   
   # UI Components (minimal)
   smooth_page_indicator: ^2.0.1

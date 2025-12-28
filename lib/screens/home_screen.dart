@@ -80,6 +80,16 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () => context.push(AppRouter.documentsList),
             color: Theme.of(context).colorScheme.secondary,
           ),
+          const SizedBox(height: 12),
+
+          // QR/Barcode Scanner Button
+          _buildActionCard(
+            icon: Icons.qr_code_scanner,
+            title: l10n.scanQRBarcode,
+            subtitle: l10n.scanQRBarcodeSubtitle,
+            onTap: () => context.push(AppRouter.qrScanner),
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
           const SizedBox(height: 32),
 
           // Statistics Section
