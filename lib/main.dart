@@ -1,30 +1,46 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:scanapp/screens/home_screen.dart';
-import 'package:scanapp/screens/splash_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:scanapp/services/database_service.dart';
+import 'package:scanapp/theme/app_theme.dart';
+import 'package:scanapp/providers/documents_provider.dart';
+import 'package:scanapp/providers/image_editing_provider.dart';
+import 'package:scanapp/providers/document_builder_provider.dart';
+import 'package:scanapp/routes/app_router.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Database in background to prevent frame skips
+  DatabaseService.initialize();
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'PDF Creator',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => DocumentsProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ImageEditingProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => DocumentBuilderProvider(),
+        ),
+      ],
+      child: MaterialApp.router(
+        title: 'ScanApp - Document Scanner',
+        theme: AppTheme.lightTheme(),
+        darkTheme: AppTheme.darkTheme(),
+        themeMode: ThemeMode.system,
+        debugShowCheckedModeBanner: false,
+        routerConfig: AppRouter.router,
       ),
-      // home: HomeScreen(),
-      debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
     );
   }
 }

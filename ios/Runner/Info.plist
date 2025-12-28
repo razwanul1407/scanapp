@@ -45,5 +45,18 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Camera Permission -->
+	<key>NSCameraUsageDescription</key>
+	<string>ScanApp needs camera access to scan documents and QR codes</string>
+	<!-- Photo Library Permission -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>ScanApp needs access to your photo library to pick and save scanned documents</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>ScanApp needs access to save scanned documents to your photo library</string>
+	<!-- Documents Access -->
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>UIFileSharingEnabled</key>
+	<true/>
 </dict>
 </plist>
