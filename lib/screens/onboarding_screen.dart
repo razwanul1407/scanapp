@@ -203,11 +203,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
           // Bottom Controls
           Positioned(
-            bottom: 0,
+            bottom: MediaQuery.of(context).padding.bottom + 16,
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
                   // Page Indicator
