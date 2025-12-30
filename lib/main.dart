@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
@@ -23,6 +24,14 @@ void main() async {
 
   // Clear old cache files (older than 7 days) in background
   ImageCacheService().clearOldCache();
+
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+    statusBarColor: Colors.transparent,
+    systemNavigationBarIconBrightness: Brightness.dark, // For dark nav bar
+    statusBarIconBrightness: Brightness.dark, // For dark status bar
+  ));
 
   runApp(const MyApp());
 }

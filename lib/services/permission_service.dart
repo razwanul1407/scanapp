@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class PermissionService {
@@ -133,6 +134,30 @@ class PermissionService {
       case PermissionStatus.provisional:
         return 'Provisional';
     }
+  }
+
+  /// Request MANAGE_EXTERNAL_STORAGE permission (for broader access on Android 11+)
+  /// This is required if you need to access files outside app-specific directories
+  /// on Android 11+. Note: Google Play requires justification for this permission.
+  Future<PermissionStatus> requestManageExternalStoragePermission() async {
+    if (Platform.isAndroid) {
+      try {
+        return await Permission.manageExternalStorage.request();
+      } catch (e) {
+        debugPrint('Error requesting manage external storage: $e');
+        return PermissionStatus.denied;
+      }
+    }
+    return PermissionStatus.granted;
+  }
+
+  /// Check if MANAGE_EXTERNAL_STORAGE permission is granted
+  Future<bool> isManageExternalStorageGranted() async {
+    if (Platform.isAndroid) {
+      final status = await Permission.manageExternalStorage.status;
+      return status.isGranted;
+    }
+    return true;
   }
 
   /// Get Android API version

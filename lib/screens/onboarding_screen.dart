@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -54,10 +55,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     setState(() => _isRequestingPermissions = true);
 
     try {
-      final permissionService = PermissionService();
-
       // Request camera permission
-      final cameraStatus = await permissionService.requestCameraPermission();
+      final cameraStatus = await Permission.camera.request();
+      debugPrint('Camera permission status: ${cameraStatus.toString()}');
+
       if (!cameraStatus.isGranted && mounted) {
         PermissionDialogs.showPermissionDialog(
           context: context,
@@ -66,16 +67,63 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               'ScanApp needs camera access to scan documents and QR codes.',
           permissionName: 'Camera',
           onAllow: () async {
-            await permissionService.requestCameraPermission();
+            // Request again after user taps allow
+            await Permission.camera.request();
+            if (mounted) {
+              _requestPhotosPermissionStep();
+            }
           },
-          onDeny: () {},
+          onDeny: () {
+            // User denied, complete anyway or exit
+            _completeOnboarding();
+          },
         );
         return;
       }
 
-      // Request photos permission
-      final photosStatus = await permissionService.requestPhotosPermission();
-      if (!photosStatus.isGranted && mounted) {
+      // Camera granted, request photos
+      _requestPhotosPermissionStep();
+    } catch (e) {
+      debugPrint('Error requesting permissions: $e');
+      // Complete onboarding even if there's an error
+      _completeOnboarding();
+    }
+  }
+
+  Future<void> _requestPhotosPermissionStep() async {
+    try {
+      // For Android 11+, try photos first, fallback to storage
+      PermissionStatus photosStatus;
+
+      if (Platform.isAndroid) {
+        // Try photos permission (Android 13+)
+        photosStatus = await Permission.photos.status;
+
+        if (photosStatus.isDenied) {
+          photosStatus = await Permission.photos.request();
+        }
+
+        debugPrint('Photos permission status: ${photosStatus.toString()}');
+
+        // If photos denied, try storage permission (Android 11-12)
+        if (photosStatus.isDenied) {
+          final storageStatus = await Permission.storage.status;
+          if (storageStatus.isDenied) {
+            photosStatus = await Permission.storage.request();
+            debugPrint('Storage permission status: ${photosStatus.toString()}');
+          } else {
+            photosStatus = storageStatus;
+          }
+        }
+      } else {
+        // iOS
+        photosStatus = await Permission.photos.status;
+        if (photosStatus.isDenied) {
+          photosStatus = await Permission.photos.request();
+        }
+      }
+
+      if (!photosStatus.isGranted && !photosStatus.isLimited && mounted) {
         PermissionDialogs.showPermissionDialog(
           context: context,
           title: 'Photo Library Access',
@@ -83,24 +131,35 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               'ScanApp needs access to your photo library to pick and save documents.',
           permissionName: 'Photos',
           onAllow: () async {
-            await permissionService.requestPhotosPermission();
+            // Request again after user taps allow
+            await Permission.photos.request();
+            if (mounted) {
+              _completeOnboarding();
+            }
           },
-          onDeny: () {},
+          onDeny: () {
+            // User denied, complete anyway
+            _completeOnboarding();
+          },
         );
         return;
       }
 
-      // Save onboarding completed status
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('onboarding_completed', true);
+      // All permissions done
+      _completeOnboarding();
+    } catch (e) {
+      debugPrint('Error in photos permission step: $e');
+      _completeOnboarding();
+    }
+  }
 
-      if (mounted) {
-        widget.onComplete();
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isRequestingPermissions = false);
-      }
+  Future<void> _completeOnboarding() async {
+    // Save onboarding completed status
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('onboarding_completed', true);
+
+    if (mounted) {
+      widget.onComplete();
     }
   }
 
@@ -144,11 +203,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
           // Bottom Controls
           Positioned(
-            bottom: 0,
+            bottom: MediaQuery.of(context).padding.bottom + 16,
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
                   // Page Indicator
