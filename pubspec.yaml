@@ -2,7 +2,7 @@ name: scanapp
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ^3.5.2
@@ -35,44 +35,44 @@ dependencies:
 
   # Core UI & Material Design 3
   cupertino_icons: ^1.0.8
-  
+
   # Document Scanner with auto edge detection
   cunning_document_scanner: ^1.4.0
-  
+
   # Image Processing (lightweight)
   image: ^4.5.4
-  
+
   # PDF & Document Export
   pdf: ^3.11.3
   printing: ^5.14.0
-  
+
   # Local Database (SQLite)
   sqflite: ^2.3.2
   path: ^1.9.0
-  
+
   # State Management
   provider: ^6.1.0
-  
+
   # Permissions
   permission_handler: ^12.0.1
-  
+
   # File & Path Management
   path_provider: ^2.1.0
   share_plus: ^12.0.1
   url_launcher: ^6.2.5
-  
+
   # Navigation
   go_router: ^17.0.1
-  
+
   # App Update Checker (Play Store & App Store)
   upgrader: ^12.3.0
-  
+
   # QR Code & Barcode Scanner
   mobile_scanner: ^7.1.4
-  
+
   # UI Components (minimal)
   smooth_page_indicator: ^2.0.1
-  
+
   # Utilities
   intl: ^0.20.0
   shared_preferences: ^2.2.2
@@ -89,7 +89,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

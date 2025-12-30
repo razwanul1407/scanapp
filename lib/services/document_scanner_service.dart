@@ -84,10 +84,22 @@ class DocumentScannerService {
   }
 
   /// Request storage permission (for gallery access)
+  /// Handles Android 11+ scoped storage requirements
   static Future<bool> _requestStoragePermission() async {
     if (Platform.isAndroid) {
-      final status = await Permission.photos.request();
-      return status.isGranted || status.isLimited;
+      // Android 11+ uses scoped storage by default
+      // Try to request READ_MEDIA_IMAGES first (Android 13+)
+      // Fall back to generic storage permission for Android 11-12
+      try {
+        final status = await Permission.photos.request();
+        return status.isGranted || status.isLimited;
+      } catch (e) {
+        debugPrint(
+            'Photos permission not available, trying storage permission: $e');
+        // Fallback for older Android versions
+        final status = await Permission.storage.request();
+        return status.isGranted;
+      }
     }
     return true;
   }
