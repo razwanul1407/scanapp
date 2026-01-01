@@ -1,11 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:scanapp/providers/language_provider.dart';
 import 'package:scanapp/l10n/app_localizations.dart';
 import 'package:scanapp/screens/language_selection_screen.dart';
 
-class SettingsDrawer extends StatelessWidget {
+class SettingsDrawer extends StatefulWidget {
   const SettingsDrawer({super.key});
+
+  @override
+  State<SettingsDrawer> createState() => _SettingsDrawerState();
+}
+
+class _SettingsDrawerState extends State<SettingsDrawer> {
+  String _version = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _version = '${packageInfo.version}+${packageInfo.buildNumber}';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +170,7 @@ class SettingsDrawer extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Text(
-        'Version 1.0.0',
+        _version.isEmpty ? 'Loading...' : 'Version $_version',
         style: TextStyle(
           color: Colors.grey[500],
           fontSize: 12,

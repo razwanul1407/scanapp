@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:scanapp/models/scanned_document.dart';
 import 'package:scanapp/providers/documents_provider.dart';
 import 'package:scanapp/screens/document_detail_screen.dart';
-import 'package:scanapp/screens/single_image_detail_screen.dart';
-import 'package:scanapp/services/pdf_service.dart';
 import 'package:scanapp/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
-import 'dart:io';
 
 class DocumentsListScreen extends StatefulWidget {
   const DocumentsListScreen({super.key});
@@ -153,7 +151,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                 ),
               ),
 
-              // Documents List/Grid
+              // Documents List/Grid with Sections
               Expanded(
                 child: provider.isLoading
                     ? const Center(child: CircularProgressIndicator())
@@ -186,338 +184,14 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                               ],
                             ),
                           )
-                        : _isGridView
-                            ? GridView.builder(
-                                padding: const EdgeInsets.all(12),
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  mainAxisSpacing: 12,
-                                  crossAxisSpacing: 12,
-                                  childAspectRatio: 0.75,
-                                ),
-                                itemCount: provider.documents.length,
-                                itemBuilder: (context, index) {
-                                  final doc = provider.documents[index];
-                                  return _buildDocumentCard(
-                                    doc: doc,
-                                    provider: provider,
-                                  );
-                                },
-                              )
-                            : ListView.builder(
-                                padding: const EdgeInsets.all(12),
-                                itemCount: provider.documents.length,
-                                itemBuilder: (context, index) {
-                                  final doc = provider.documents[index];
-                                  return _buildDocumentListItem(
-                                    doc: doc,
-                                    provider: provider,
-                                  );
-                                },
-                              ),
+                        : _buildDocumentsList(
+                            context, provider, l10n, _isGridView),
               ),
             ],
           );
         },
       ),
     );
-  }
-
-  /// Navigate to appropriate screen based on document's image count
-  void _navigateToDocument(dynamic doc) {
-    // Check if document has single image or multiple images
-    final isSingleImage = doc.imagePaths.length == 1;
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => isSingleImage
-            ? SingleImageDetailScreen(document: doc)
-            : DocumentDetailScreen(document: doc),
-      ),
-    );
-  }
-
-  Widget _buildDocumentCard({
-    required dynamic doc,
-    required DocumentsProvider provider,
-  }) {
-    return GestureDetector(
-      onTap: () => _navigateToDocument(doc),
-      child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Thumbnail
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    // Show first image as thumbnail
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(12),
-                      ),
-                      child: doc.imagePaths.isNotEmpty &&
-                              File(doc.imagePaths.first).existsSync()
-                          ? Image.file(
-                              File(doc.imagePaths.first),
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: double.infinity,
-                            )
-                          : Center(
-                              child: Icon(
-                                Icons.document_scanner,
-                                size: 48,
-                                color: Colors.grey[400],
-                              ),
-                            ),
-                    ),
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: GestureDetector(
-                        onTap: () => provider.toggleFavorite(doc.id),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          padding: const EdgeInsets.all(6),
-                          child: Icon(
-                            doc.isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: Colors.red,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Info
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    doc.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    DateFormat('MMM dd, yyyy').format(doc.createdAt),
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      SizedBox(
-                        height: 32,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            // Share action
-                            _shareDocument(doc.id, provider);
-                          },
-                          icon: const Icon(Icons.share, size: 14),
-                          label: Text(AppLocalizations.of(context).share),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            textStyle: const TextStyle(
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDocumentListItem({
-    required dynamic doc,
-    required DocumentsProvider provider,
-  }) {
-    return GestureDetector(
-      onTap: () => _navigateToDocument(doc),
-      child: Card(
-        margin: const EdgeInsets.only(bottom: 8),
-        child: ListTile(
-          leading: Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: doc.imagePaths.isNotEmpty &&
-                      File(doc.imagePaths.first).existsSync()
-                  ? Image.file(
-                      File(doc.imagePaths.first),
-                      fit: BoxFit.cover,
-                      width: 50,
-                      height: 50,
-                    )
-                  : Center(
-                      child: Icon(
-                        Icons.document_scanner,
-                        size: 28,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-            ),
-          ),
-          title: Text(
-            doc.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 4),
-              Text(
-                DateFormat('MMM dd, yyyy').format(doc.createdAt),
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
-              ),
-              Text(
-                '${doc.pageCount} page${doc.pageCount > 1 ? 's' : ''}',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-          trailing: PopupMenuButton(
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                child: Row(
-                  children: [
-                    Icon(
-                      doc.isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: Colors.red,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      doc.isFavorite
-                          ? AppLocalizations.of(context).removeFromFavorite
-                          : AppLocalizations.of(context).addToFavorite,
-                    ),
-                  ],
-                ),
-                onTap: () => provider.toggleFavorite(doc.id),
-              ),
-              PopupMenuItem(
-                child: Row(
-                  children: [
-                    const Icon(Icons.share, size: 18),
-                    const SizedBox(width: 12),
-                    Text(AppLocalizations.of(context).share),
-                  ],
-                ),
-                onTap: () {
-                  // Share action
-                  _shareDocument(doc.id, provider);
-                },
-              ),
-              PopupMenuItem(
-                child: Row(
-                  children: [
-                    const Icon(Icons.delete, color: Colors.red, size: 18),
-                    const SizedBox(width: 12),
-                    Text(AppLocalizations.of(context).delete),
-                  ],
-                ),
-                onTap: () => _showDeleteDialog(context, doc.id, provider),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _shareDocument(int docId, DocumentsProvider provider) async {
-    final doc = provider.documents.firstWhere((d) => d.id == docId);
-
-    try {
-      // Show loading indicator
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).preparingDocument)),
-      );
-
-      // Convert image paths to File objects
-      final imageFiles = doc.imagePaths.map((path) => File(path)).toList();
-
-      // Create PDF from document images
-      final pdfBytes = await PdfService.createMultiPagePdf(
-        imageFiles: imageFiles,
-        title: doc.title,
-      );
-
-      // Share the PDF
-      await PdfService.sharePdfBytes(
-        pdfBytes: pdfBytes,
-        filename: doc.title,
-      );
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).documentShared)),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error sharing document: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
   }
 
   void _showDeleteDialog(
@@ -552,6 +226,153 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
               foregroundColor: Colors.red,
             ),
             child: Text(AppLocalizations.of(context).delete),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDocumentsList(
+    BuildContext context,
+    DocumentsProvider provider,
+    AppLocalizations l10n,
+    bool isGridView,
+  ) {
+    // Separate documents into scanned and OCR
+    final scannedDocs =
+        provider.documents.where((doc) => !doc.tags.contains('ocr')).toList();
+    final ocrDocs =
+        provider.documents.where((doc) => doc.tags.contains('ocr')).toList();
+
+    return ListView(
+      padding: const EdgeInsets.all(12),
+      children: [
+        // Scanned Documents Section
+        if (scannedDocs.isNotEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            child: Row(
+              children: [
+                Icon(Icons.document_scanner,
+                    color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 12),
+                Text(
+                  'Scanned Documents',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+          ),
+          ...scannedDocs
+              .map((doc) => _buildDocumentCard(context, doc, provider)),
+          Divider(height: 24, thickness: 1),
+        ],
+
+        // OCR Documents Section
+        if (ocrDocs.isNotEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            child: Row(
+              children: [
+                Icon(Icons.text_fields, color: Colors.green),
+                const SizedBox(width: 12),
+                Text(
+                  'OCR Extractions',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+          ),
+          ...ocrDocs.map((doc) => _buildDocumentCard(context, doc, provider)),
+        ],
+
+        // Empty state for both
+        if (scannedDocs.isEmpty && ocrDocs.isEmpty)
+          Center(
+            child: Text(l10n.noDocumentsFound),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildDocumentCard(
+    BuildContext context,
+    ScannedDocument doc,
+    DocumentsProvider provider,
+  ) {
+    final isOcr = doc.tags.contains('ocr');
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        leading: Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            color: isOcr ? Colors.green.shade100 : Colors.blue.shade100,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            isOcr ? Icons.text_fields : Icons.image,
+            color: isOcr ? Colors.green : Colors.blue,
+          ),
+        ),
+        title: Text(doc.title),
+        subtitle: Text(
+          '${doc.pageCount} ${doc.pageCount == 1 ? 'page' : 'pages'} • ${DateFormat('MMM dd, yyyy').format(doc.createdAt)}',
+        ),
+        trailing: PopupMenuButton(
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              child: const Text('View'),
+              onTap: () {
+                if (isOcr && doc.imagePaths.isNotEmpty) {
+                  // OCR files - show text preview
+                  _showTextPreview(context, doc);
+                } else if (!isOcr && doc.imagePaths.isNotEmpty) {
+                  // Scanned documents - show image
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DocumentDetailScreen(document: doc),
+                    ),
+                  );
+                }
+              },
+            ),
+            PopupMenuItem(
+              child: const Text('Delete'),
+              onTap: () {
+                if (doc.id != null) {
+                  _showDeleteDialog(context, doc.id!, provider);
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showTextPreview(BuildContext context, ScannedDocument doc) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(doc.title),
+        content: SingleChildScrollView(
+          child: SelectableText(
+            doc.extractedText ?? 'No text content',
+            style: const TextStyle(height: 1.6),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
           ),
         ],
       ),

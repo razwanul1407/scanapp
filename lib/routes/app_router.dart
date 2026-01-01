@@ -10,6 +10,7 @@ import 'package:scanapp/screens/image_editing_screen.dart';
 import 'package:scanapp/screens/document_builder_screen.dart';
 import 'package:scanapp/screens/documents_list_screen.dart';
 import 'package:scanapp/screens/qr_scanner_screen.dart';
+import 'package:scanapp/screens/text_export_screen.dart';
 import 'package:scanapp/providers/document_builder_provider.dart';
 import 'package:scanapp/providers/image_editing_provider.dart';
 
@@ -19,9 +20,9 @@ class AppRouter {
   static const onboarding = '/onboarding';
   static const home = '/home';
   static const camera = '/camera';
-  static const cameraAddMore = '/camera/add-more';
+  static const ocrCamera = '/camera/ocr';
   static const imageEditing = '/edit';
-  static const imageEditingAddMore = '/edit/add-more';
+  static const textExport = '/export-text';
   static const documentBuilder = '/builder';
   static const documentsList = '/documents';
   static const qrScanner = '/qr-scanner';
@@ -55,10 +56,18 @@ class AppRouter {
         name: 'camera',
         builder: (context, state) {
           // Use native document scanner with auto edge detection
+          // Allow multiple images continuously
           return DocumentScannerScreen(
             isNewSession: true, // Flag to clear previous session
+            allowMultiple: true, // Allow continuous scanning
             onImagesScanned: (List<File> files) {
               if (files.isNotEmpty) {
+                // Add all scanned images to document builder
+                final provider = context.read<DocumentBuilderProvider>();
+                for (final file in files) {
+                  provider.addImage(file);
+                }
+                // Load first image for preview in edit screen
                 context.read<ImageEditingProvider>().loadImage(files.first);
                 // Replace scanner with edit screen to avoid returning to 'preparing'
                 context.replace(imageEditing);
@@ -68,20 +77,25 @@ class AppRouter {
         },
       ),
       GoRoute(
-        path: cameraAddMore,
-        name: 'cameraAddMore',
+        path: ocrCamera,
+        name: 'ocrCamera',
         builder: (context, state) {
-          // Scanner for adding more pages to existing document
+          // Camera for OCR - will open directly to OCR tab
           return DocumentScannerScreen(
+            isNewSession: true,
             allowMultiple: true,
             onImagesScanned: (List<File> files) {
               if (files.isNotEmpty) {
-                // Add all scanned images directly to document builder
                 final provider = context.read<DocumentBuilderProvider>();
                 for (final file in files) {
                   provider.addImage(file);
                 }
-                context.go(documentBuilder);
+                context.read<ImageEditingProvider>().loadImage(files.first);
+                // Navigate to edit screen with OCR tab open (initialTabIndex: 1)
+                context.replace(
+                  imageEditing,
+                  extra: {'initialTab': 1},
+                );
               }
             },
           );
@@ -90,22 +104,16 @@ class AppRouter {
       GoRoute(
         path: imageEditing,
         name: 'imageEditing',
-        builder: (context, state) => ImageEditingScreen(
-          onEditComplete: () {
-            // After editing, save image and go to document builder
-            _saveEditedImageAndNavigate(context, documentBuilder);
-          },
-        ),
-      ),
-      GoRoute(
-        path: imageEditingAddMore,
-        name: 'imageEditingAddMore',
-        builder: (context, state) => ImageEditingScreen(
-          onEditComplete: () {
-            // After editing, save image and add to builder
-            _saveEditedImageAndNavigate(context, documentBuilder);
-          },
-        ),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final initialTab = extra?['initialTab'] as int? ?? 0;
+          return ImageEditingScreen(
+            initialTabIndex: initialTab,
+            onEditComplete: () {
+              context.go(documentBuilder);
+            },
+          );
+        },
       ),
       GoRoute(
         path: documentBuilder,
@@ -116,6 +124,14 @@ class AppRouter {
             context.go(home);
           },
         ),
+      ),
+      GoRoute(
+        path: textExport,
+        name: 'textExport',
+        builder: (context, state) {
+          final extractedText = state.extra as String? ?? '';
+          return TextExportScreen(extractedText: extractedText);
+        },
       ),
       GoRoute(
         path: documentsList,
@@ -155,31 +171,4 @@ class AppRouter {
       ),
     ),
   );
-
-  /// Helper to save the edited image and navigate
-  static Future<void> _saveEditedImageAndNavigate(
-    BuildContext context,
-    String destination,
-  ) async {
-    final editProvider = context.read<ImageEditingProvider>();
-    final builderProvider = context.read<DocumentBuilderProvider>();
-
-    // Get the processed image bytes and save to a file
-    final processedBytes = editProvider.processedImageBytes;
-    if (processedBytes != null) {
-      // Create a temporary file with the processed image
-      final tempDir = Directory.systemTemp;
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final tempFile = File('${tempDir.path}/scan_$timestamp.jpg');
-      await tempFile.writeAsBytes(processedBytes);
-      builderProvider.addImage(tempFile);
-    } else if (editProvider.originalImage != null) {
-      // Fallback to original if no processing was done
-      builderProvider.addImage(editProvider.originalImage!);
-    }
-
-    if (context.mounted) {
-      context.go(destination);
-    }
-  }
 }

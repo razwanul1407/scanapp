@@ -70,12 +70,16 @@ dependencies:
   # QR Code & Barcode Scanner
   mobile_scanner: ^7.1.4
 
+  # OCR & Text Recognition (Phase 3) - Latest version, no namespace issues
+  google_mlkit_text_recognition: ^0.15.0
+
   # UI Components (minimal)
   smooth_page_indicator: ^2.0.1
 
   # Utilities
   intl: ^0.20.0
   shared_preferences: ^2.2.2
+  package_info_plus: ^8.0.0
 
 dev_dependencies:
   flutter_test:

@@ -14,6 +14,11 @@ class ScannedDocument {
   bool isFavorite;
   String? lastExportFormat; // 'pdf', 'jpg', 'png'
 
+  // Phase 3 enhancements
+  String? extractedText; // OCR extracted text from all pages
+  String? activeFilterPreset; // Name of applied filter preset
+  Map<String, dynamic>? metadata; // Custom metadata for advanced features
+
   ScannedDocument({
     this.id,
     required this.title,
@@ -27,6 +32,9 @@ class ScannedDocument {
     required this.fileSize,
     this.isFavorite = false,
     this.lastExportFormat,
+    this.extractedText,
+    this.activeFilterPreset,
+    this.metadata,
   });
 
   // Convert to Map for sqflite
@@ -44,6 +52,9 @@ class ScannedDocument {
       'fileSize': fileSize,
       'isFavorite': isFavorite ? 1 : 0,
       'lastExportFormat': lastExportFormat,
+      'extractedText': extractedText,
+      'activeFilterPreset': activeFilterPreset,
+      'metadata': metadata != null ? jsonEncode(metadata) : null,
     };
   }
 
@@ -63,6 +74,12 @@ class ScannedDocument {
       fileSize: map['fileSize'] as int,
       isFavorite: (map['isFavorite'] as int) == 1,
       lastExportFormat: map['lastExportFormat'] as String?,
+      extractedText: map['extractedText'] as String?,
+      activeFilterPreset: map['activeFilterPreset'] as String?,
+      metadata: map['metadata'] != null
+          ? Map<String, dynamic>.from(
+              jsonDecode(map['metadata'] as String) as Map)
+          : null,
     );
   }
 

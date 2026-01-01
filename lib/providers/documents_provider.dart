@@ -14,6 +14,10 @@ class DocumentsProvider extends ChangeNotifier {
   int _currentPage = 0;
   List<ScannedDocument> _paginatedDocuments = [];
 
+  // Batch operations (Phase 3)
+  final Set<int> _selectedDocumentIds = {};
+  bool _isSelectionMode = false;
+
   List<ScannedDocument> get documents => _paginatedDocuments;
   bool get isLoading => _isLoading;
   String get searchQuery => _searchQuery;
@@ -23,6 +27,12 @@ class DocumentsProvider extends ChangeNotifier {
   bool get hasNextPage =>
       (_currentPage + 1) * _pageSize < _filteredDocuments.length;
   bool get hasPreviousPage => _currentPage > 0;
+
+  // Batch operations getters
+  bool get isSelectionMode => _isSelectionMode;
+  int get selectedCount => _selectedDocumentIds.length;
+  bool get hasSelection => _selectedDocumentIds.isNotEmpty;
+  Set<int> get selectedIds => Set.unmodifiable(_selectedDocumentIds);
 
   /// Load all documents from database
   Future<void> loadDocuments() async {
@@ -190,6 +200,108 @@ class DocumentsProvider extends ChangeNotifier {
   /// Get all tags
   Future<List<String>> getAllTags() async {
     return await DatabaseService.getAllTags();
+  }
+
+  // Batch Operations (Phase 3)
+
+  /// Toggle selection mode
+  void toggleSelectionMode() {
+    _isSelectionMode = !_isSelectionMode;
+    if (!_isSelectionMode) {
+      _selectedDocumentIds.clear();
+    }
+    notifyListeners();
+  }
+
+  /// Toggle document selection
+  void toggleDocumentSelection(int documentId) {
+    if (_selectedDocumentIds.contains(documentId)) {
+      _selectedDocumentIds.remove(documentId);
+    } else {
+      _selectedDocumentIds.add(documentId);
+    }
+    notifyListeners();
+  }
+
+  /// Select all documents on current page
+  void selectAllOnPage() {
+    for (final doc in _paginatedDocuments) {
+      if (doc.id != null) {
+        _selectedDocumentIds.add(doc.id!);
+      }
+    }
+    notifyListeners();
+  }
+
+  /// Deselect all documents
+  void deselectAll() {
+    _selectedDocumentIds.clear();
+    notifyListeners();
+  }
+
+  /// Check if document is selected
+  bool isDocumentSelected(int documentId) {
+    return _selectedDocumentIds.contains(documentId);
+  }
+
+  /// Batch delete documents
+  Future<void> batchDeleteDocuments(List<int> ids) async {
+    try {
+      await DatabaseService.deleteDocuments(ids);
+      _selectedDocumentIds.removeAll(ids);
+      await loadDocuments();
+    } catch (e) {
+      debugPrint('Error batch deleting documents: $e');
+      rethrow;
+    }
+  }
+
+  /// Batch delete selected documents
+  Future<void> batchDeleteSelected() async {
+    await batchDeleteDocuments(_selectedDocumentIds.toList());
+    deselectAll();
+  }
+
+  /// Batch update tags for selected documents
+  Future<void> batchUpdateTagsForSelected(List<String> tagsToAdd,
+      {bool replace = false}) async {
+    try {
+      await DatabaseService.batchUpdateTags(
+        _selectedDocumentIds.toList(),
+        tagsToAdd,
+        replace: replace,
+      );
+      await loadDocuments();
+    } catch (e) {
+      debugPrint('Error batch updating tags: $e');
+      rethrow;
+    }
+  }
+
+  /// Batch toggle favorite status
+  Future<void> batchToggleFavorite(bool isFavorite) async {
+    try {
+      await DatabaseService.batchToggleFavorite(
+        _selectedDocumentIds.toList(),
+        isFavorite,
+      );
+      await loadDocuments();
+    } catch (e) {
+      debugPrint('Error batch toggling favorite: $e');
+      rethrow;
+    }
+  }
+
+  /// Get total size of selected documents
+  Future<int> getSelectedDocumentsSize() async {
+    return await DatabaseService.getTotalSizeOfDocuments(
+      _selectedDocumentIds.toList(),
+    );
+  }
+
+  /// Export selected documents IDs (for batch export)
+  List<int> getSelectedDocumentIds() {
+    return _selectedDocumentIds.toList();
   }
 
   // Private methods

@@ -87,9 +87,9 @@ class _DocumentBuilderScreenState extends State<DocumentBuilderScreen> {
   }
 
   void _scanMorePages(BuildContext context) {
-    // Navigate to camera in "add more" mode
-    // The router will handle returning to document builder after capture
-    context.push(AppRouter.cameraAddMore);
+    // Start a new camera session to add more pages
+    // User can capture multiple images, then comes back to edit, then to builder
+    context.push(AppRouter.camera);
   }
 
   @override

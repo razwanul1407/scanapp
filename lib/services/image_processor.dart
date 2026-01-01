@@ -11,7 +11,11 @@ enum DocumentFilter {
   magicColor('Magic Color', 'Enhanced colors for documents'),
   blackWhite('B&W', 'Black and white document'),
   grayscale('Grayscale', 'Grayscale conversion'),
-  highContrast('High Contrast', 'Increased contrast for text');
+  highContrast('High Contrast', 'Increased contrast for text'),
+  sepia('Sepia', 'Warm sepia tone'),
+  blur('Blur', 'Slight blur effect'),
+  sharpen('Sharpen', 'Enhanced sharpness'),
+  invert('Invert', 'Inverted colors');
 
   const DocumentFilter(this.label, this.description);
   final String label;
@@ -343,9 +347,76 @@ class ImageProcessor {
           brightness: 5,
         );
         break;
+
+      case DocumentFilter.sepia:
+        // Sepia tone filter (Phase 3)
+        image = _applySepiaFilter(image);
+        break;
+
+      case DocumentFilter.blur:
+        // Slight blur effect using convolution (Phase 3)
+        // Apply a simple box blur using convolution
+        image = img.convolution(image, filter: [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+        ]);
+        break;
+
+      case DocumentFilter.sharpen:
+        // Sharpening filter (Phase 3)
+        image = img.convolution(image, filter: [
+          0,
+          -1,
+          0,
+          -1,
+          5,
+          -1,
+          0,
+          -1,
+          0,
+        ]);
+        break;
+
+      case DocumentFilter.invert:
+        // Invert colors (Phase 3)
+        image = img.invert(image);
+        break;
     }
 
     return Uint8List.fromList(img.encodeJpg(image, quality: 90));
+  }
+
+  /// Apply sepia tone filter
+  static img.Image _applySepiaFilter(img.Image image) {
+    final width = image.width;
+    final height = image.height;
+
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        final pixel = image.getPixel(x, y);
+        final r = (pixel.r as int);
+        final g = (pixel.g as int);
+        final b = (pixel.b as int);
+
+        // Sepia formula
+        final sepiaR =
+            (r * 0.393 + g * 0.769 + b * 0.189).clamp(0, 255).toInt();
+        final sepiaG =
+            (r * 0.349 + g * 0.686 + b * 0.168).clamp(0, 255).toInt();
+        final sepiaB =
+            (r * 0.272 + g * 0.534 + b * 0.131).clamp(0, 255).toInt();
+
+        image.setPixel(x, y, img.ColorRgba8(sepiaR, sepiaG, sepiaB, 255));
+      }
+    }
+    return image;
   }
 
   static Uint8List _rotateImageIsolate(Map<String, dynamic> params) {

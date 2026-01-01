@@ -4,7 +4,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:scanapp/widgets/permission_dialogs.dart';
-import 'package:scanapp/services/permission_service.dart';
 import 'package:scanapp/l10n/app_localizations.dart';
 
 class OnboardingScreen extends StatefulWidget {

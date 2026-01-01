@@ -114,12 +114,36 @@ class AppLocalizations {
       'scanQRBarcode': 'Scan QR/Barcode',
       'scanQRBarcodeSubtitle': 'Scan QR codes and barcodes instantly',
       'qrScannerTitle': 'QR & Barcode Scanner',
+      'extractTextButton': 'Extract Text',
+      'extractTextSubtitle': 'Extract text from images using OCR',
+      'captureAndExtract': 'Capture & Extract Text',
+      'captureAndExtractSubtitle': 'Take a photo and extract text',
+      'pickFromGallery': 'Pick from Gallery',
+      'pickFromGallerySubtitle': 'Select existing image for OCR',
+      // Text Export Screen (Phase 3)
+      'exportText': 'Export Text',
+      'chooseExportFormat': 'Choose Export Format',
+      'exportAsTxt': 'Save as plain text file',
+      'exportAsPdf': 'Save as PDF document',
+      'exportAsDocx': 'Save as Word document',
+      'copyText': 'Copy to clipboard',
       'scanResult': 'Scan Result',
       'copyToClipboard': 'Copy',
       'copiedToClipboard': 'Copied to clipboard',
       'openLink': 'Open Link',
       'pointCameraAtCode': 'Point camera at QR code or barcode',
       'scanAgain': 'Scan Again',
+
+      // Phase 3 Enhancements
+      'filter': 'Filter',
+      'ocrTab': 'OCR',
+      'extractedText': 'Extracted Text',
+      'extractText': 'Extract Text',
+      'processing': 'Processing',
+      'noTextExtracted': 'No text extracted. Tap "Extract Text" to begin.',
+      'noTextFound': 'No text found in image',
+      'ocrError': 'OCR Error',
+      'clear': 'Clear',
     },
     'bn': {
       // App Name & General
@@ -223,12 +247,36 @@ class AppLocalizations {
       'scanQRBarcode': 'QR/বারকোড স্ক্যান',
       'scanQRBarcodeSubtitle': 'তাৎক্ষণিকভাবে QR কোড এবং বারকোড স্ক্যান করুন',
       'qrScannerTitle': 'QR ও বারকোড স্ক্যানার',
-      'scanResult': 'স্ক্যান ফলাফল',
+      'extractTextButton': 'পাঠ্য নিষ্কাশন',
+      'extractTextSubtitle': 'OCR ব্যবহার করে ছবি থেকে পাঠ্য নিষ্কাশন করুন',
+      'captureAndExtract': 'ক্যাপচার এবং পাঠ্য নিষ্কাশন',
+      'captureAndExtractSubtitle': 'একটি ফটো তুলুন এবং পাঠ্য নিষ্কাশন করুন',
+      'pickFromGallery': 'গ্যালারি থেকে নির্বাচন করুন',
+      'pickFromGallerySubtitle': 'OCR-এর জন্য বিদ্যমান ইমেজ নির্বাচন করুন',
+      // Text Export Screen (Phase 3)
+      'exportText': 'পাঠ্য রপ্তানি',
+      'chooseExportFormat': 'রপ্তানি ফর্ম্যাট নির্বাচন করুন',
+      'exportAsTxt': 'সাধারণ পাঠ্য ফাইল হিসাবে সংরক্ষণ করুন',
+      'exportAsPdf': 'পিডিএফ ডকুমেন্ট হিসাবে সংরক্ষণ করুন',
+      'exportAsDocx': 'ওয়ার্ড ডকুমেন্ট হিসাবে সংরক্ষণ করুন',
+      'copyText': 'ক্লিপবোর্ডে কপি করুন', 'scanResult': 'স্ক্যান ফলাফল',
       'copyToClipboard': 'কপি',
       'copiedToClipboard': 'ক্লিপবোর্ডে কপি হয়েছে',
       'openLink': 'লিংক খুলুন',
       'pointCameraAtCode': 'QR কোড বা বারকোডে ক্যামেরা পয়েন্ট করুন',
       'scanAgain': 'আবার স্ক্যান করুন',
+
+      // Phase 3 Enhancements
+      'filter': 'ফিল্টার',
+      'ocrTab': 'OCR',
+      'extractedText': 'নিষ্কাশিত পাঠ্য',
+      'extractText': 'পাঠ্য নিষ্কাশন করুন',
+      'processing': 'প্রসেসিং',
+      'noTextExtracted':
+          'কোন পাঠ্য নিষ্কাশিত নয়। শুরু করতে "পাঠ্য নিষ্কাশন করুন" ট্যাপ করুন।',
+      'noTextFound': 'চিত্রে কোন পাঠ্য খুঁজে পাওয়া যায়নি',
+      'ocrError': 'OCR ত্রুটি',
+      'clear': 'পরিষ্কার',
     },
     'hi': {
       // App Name & General
@@ -332,12 +380,37 @@ class AppLocalizations {
       'scanQRBarcode': 'QR/बारकोड स्कैन',
       'scanQRBarcodeSubtitle': 'तुरंत QR कोड और बारकोड स्कैन करें',
       'qrScannerTitle': 'QR और बारकोड स्कैनर',
+      'extractTextButton': 'पाठ निकालें',
+      'extractTextSubtitle': 'OCR का उपयोग करके छवियों से पाठ निकालें',
+      'captureAndExtract': 'कैप्चर और पाठ निकालें',
+      'captureAndExtractSubtitle': 'एक फोटो लें और पाठ निकालें',
+      'pickFromGallery': 'गैलरी से चुनें',
+      'pickFromGallerySubtitle': 'OCR के लिए मौजूदा छवि चुनें',
+      // Text Export Screen (Phase 3)
+      'exportText': 'पाठ निर्यात करें',
+      'chooseExportFormat': 'निर्यात प्रारूप चुनें',
+      'exportAsTxt': 'सादे पाठ फाइल के रूप में सहेजें',
+      'exportAsPdf': 'पीडीएफ दस्तावेज़ के रूप में सहेजें',
+      'exportAsDocx': 'वर्ड दस्तावेज़ के रूप में सहेजें',
+      'copyText': 'क्लिपबोर्ड पर कॉपी करें',
       'scanResult': 'स्कैन परिणाम',
       'copyToClipboard': 'कॉपी',
       'copiedToClipboard': 'क्लिपबोर्ड पर कॉपी किया गया',
       'openLink': 'लिंक खोलें',
       'pointCameraAtCode': 'QR कोड या बारकोड पर कैमरा पॉइंट करें',
       'scanAgain': 'फिर से स्कैन करें',
+
+      // Phase 3 Enhancements
+      'filter': 'फ़िल्टर',
+      'ocrTab': 'OCR',
+      'extractedText': 'निकाला गया पाठ',
+      'extractText': 'पाठ निकालें',
+      'processing': 'प्रसंस्करण',
+      'noTextExtracted':
+          'कोई पाठ निकाला नहीं गया। शुरू करने के लिए "पाठ निकालें" टैप करें।',
+      'noTextFound': 'छवि में कोई पाठ नहीं मिला',
+      'ocrError': 'OCR त्रुटि',
+      'clear': 'स्पष्ट',
     },
     'ar': {
       // App Name & General
@@ -440,12 +513,36 @@ class AppLocalizations {
       'scanQRBarcode': 'مسح QR/الباركود',
       'scanQRBarcodeSubtitle': 'امسح رموز QR والباركود فوراً',
       'qrScannerTitle': 'ماسح QR والباركود',
+      'extractTextButton': 'استخراج النص',
+      'extractTextSubtitle': 'استخراج النص من الصور باستخدام OCR',
+      'captureAndExtract': 'التقط واستخرج النص',
+      'captureAndExtractSubtitle': 'التقط صورة واستخرج النص',
+      'pickFromGallery': 'اختر من المعرض',
+      'pickFromGallerySubtitle': 'حدد صورة موجودة لـ OCR',
+      // Text Export Screen (Phase 3)
+      'exportText': 'تصدير النص',
+      'chooseExportFormat': 'اختر صيغة التصدير',
+      'exportAsTxt': 'احفظ كملف نص عادي',
+      'exportAsPdf': 'احفظ كمستند PDF',
+      'exportAsDocx': 'احفظ كمستند Word',
+      'copyText': 'نسخ إلى الحافظة',
       'scanResult': 'نتيجة المسح',
       'copyToClipboard': 'نسخ',
       'copiedToClipboard': 'تم النسخ إلى الحافظة',
       'openLink': 'فتح الرابط',
       'pointCameraAtCode': 'وجّه الكاميرا نحو رمز QR أو الباركود',
       'scanAgain': 'مسح مرة أخرى',
+
+      // Phase 3 Enhancements
+      'filter': 'مرشح',
+      'ocrTab': 'OCR',
+      'extractedText': 'نص مستخرج',
+      'extractText': 'استخراج النص',
+      'processing': 'المعالجة',
+      'noTextExtracted': 'لم يتم استخراج نص. اضغط على "استخراج النص" للبدء.',
+      'noTextFound': 'لم يتم العثور على نص في الصورة',
+      'ocrError': 'خطأ OCR',
+      'clear': 'مسح',
     },
   };
 
@@ -549,6 +646,30 @@ class AppLocalizations {
   String get openLink => translate('openLink');
   String get pointCameraAtCode => translate('pointCameraAtCode');
   String get scanAgain => translate('scanAgain');
+
+  // Phase 3 Enhancements
+  String get filter => translate('filter');
+  String get ocrTab => translate('ocrTab');
+  String get extractedText => translate('extractedText');
+  String get extractText => translate('extractText');
+  String get processing => translate('processing');
+  String get noTextExtracted => translate('noTextExtracted');
+  String get noTextFound => translate('noTextFound');
+  String get ocrError => translate('ocrError');
+  String get clear => translate('clear');
+  String get extractTextButton => translate('extractTextButton');
+  String get extractTextSubtitle => translate('extractTextSubtitle');
+  String get captureAndExtract => translate('captureAndExtract');
+  String get captureAndExtractSubtitle =>
+      translate('captureAndExtractSubtitle');
+  String get pickFromGallery => translate('pickFromGallery');
+  String get pickFromGallerySubtitle => translate('pickFromGallerySubtitle');
+  String get exportText => translate('exportText');
+  String get chooseExportFormat => translate('chooseExportFormat');
+  String get exportAsTxt => translate('exportAsTxt');
+  String get exportAsPdf => translate('exportAsPdf');
+  String get exportAsDocx => translate('exportAsDocx');
+  String get copyText => translate('copyText');
 }
 
 class _AppLocalizationsDelegate

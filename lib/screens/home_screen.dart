@@ -90,6 +90,16 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () => context.push(AppRouter.qrScanner),
             color: Theme.of(context).colorScheme.tertiary,
           ),
+          const SizedBox(height: 12),
+
+          // OCR Text Extraction Button
+          _buildActionCard(
+            icon: Icons.text_fields,
+            title: l10n.extractTextButton,
+            subtitle: l10n.extractTextSubtitle,
+            onTap: () => _showOcrOptions(context),
+            color: const Color(0xFF10B981),
+          ),
           const SizedBox(height: 32),
 
           // Statistics Section
@@ -358,5 +368,56 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  void _showOcrOptions(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).disabledColor,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+          ),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: Text(l10n.captureAndExtract),
+              subtitle: Text(l10n.captureAndExtractSubtitle),
+              onTap: () {
+                Navigator.pop(context);
+                // Navigate to OCR camera (opens directly to OCR tab)
+                context.push(AppRouter.ocrCamera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.image),
+              title: Text(l10n.pickFromGallery),
+              subtitle: Text(l10n.pickFromGallerySubtitle),
+              onTap: () {
+                Navigator.pop(context);
+                _extractTextFromGallery(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _extractTextFromGallery(BuildContext context) async {
+    // TODO: Implement gallery picker and OCR
+    // For now, show a message
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gallery OCR coming soon!')),
+      );
+    }
   }
 }
